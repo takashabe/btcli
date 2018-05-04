@@ -38,6 +38,24 @@ func (b *bigtableRepository) Get(ctx context.Context, table, key string) (*domai
 	}, nil
 }
 
+func (b *bigtableRepository) GetRowsWithPrefix(ctx context.Context, table, key string) (*domain.Bigtable, error) {
+	tbl := b.client.Open(table)
+
+	rows := []*domain.Row{}
+	rr := bigtable.PrefixRange(key)
+	err := tbl.ReadRows(ctx, rr, func(row bigtable.Row) bool {
+		rows = append(rows, readRow(row))
+		return true
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &domain.Bigtable{
+		Table: table,
+		Rows:  rows,
+	}, nil
+}
+
 func readRow(r bigtable.Row) *domain.Row {
 	ret := &domain.Row{
 		Key:     r.Key(),
