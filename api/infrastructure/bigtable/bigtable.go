@@ -9,18 +9,34 @@ import (
 )
 
 type bigtableRepository struct {
-	client *bigtable.Client
+	client      *bigtable.Client
+	adminClient *bigtable.AdminClient
 }
 
 // NewBigtableRepository returns initialized bigtableRepository
 func NewBigtableRepository(project, instance string) (repository.Bigtable, error) {
-	client, err := bigtable.NewClient(context.Background(), project, instance)
+	client, err := getClient(project, instance)
+	if err != nil {
+		return nil, err
+	}
+	adminClient, err := getAdminClient(project, instance)
 	if err != nil {
 		return nil, err
 	}
 	return &bigtableRepository{
-		client: client,
+		client:      client,
+		adminClient: adminClient,
 	}, nil
+}
+
+func getClient(project, instance string) (*bigtable.Client, error) {
+	// TODO: Support options
+	return bigtable.NewClient(context.Background(), project, instance)
+}
+
+func getAdminClient(project, instance string) (*bigtable.AdminClient, error) {
+	// TODO: Support options
+	return bigtable.NewAdminClient(context.Background(), project, instance)
 }
 
 func (b *bigtableRepository) Get(ctx context.Context, table, key string) (*domain.Bigtable, error) {
@@ -74,4 +90,8 @@ func readRow(r bigtable.Row) *domain.Row {
 		}
 	}
 	return ret
+}
+
+func (b *bigtableRepository) Tables(ctx context.Context) ([]string, error) {
+	return b.adminClient.Tables(ctx)
 }

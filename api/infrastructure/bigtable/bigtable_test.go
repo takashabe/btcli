@@ -135,3 +135,25 @@ func TestGetRowsWithPrefix(t *testing.T) {
 		assert.Equal(t, c.expect, actual)
 	}
 }
+
+func TestTables(t *testing.T) {
+	cases := []struct {
+		expect []string
+	}{
+		{
+			[]string{
+				"users",
+				"articles",
+			},
+		},
+	}
+	for _, c := range cases {
+		r, err := NewBigtableRepository("test-project", "test-instance")
+		assert.NoError(t, err)
+
+		tbls, err := r.Tables(context.Background())
+		assert.NoError(t, err)
+
+		assert.Equal(t, c.expect, tbls)
+	}
+}
