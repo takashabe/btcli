@@ -1,0 +1,37 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: golang:1.10-alpine
+      - image: google/cloud-sdk
+        ports:
+          - "8864:8864"
+        command: gcloud beta emulators bigtable start --host-port 0.0.0.0:8864 --project test-project
+
+    working_directory: /go/src/github.com/takashabe/btcli
+
+    steps:
+      - checkout
+
+      - run:
+          name: Install dockerize
+          command: wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && tar -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+          environment:
+            DOCKERIZE_VERSION: v0.6.0
+
+      - run:
+          name: Install dependencies
+          command: |
+            curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+            make deps
+
+      - run:
+          name: Wait for db startup
+          command: |
+            ./dockerize -wait tcp://localhost:3306 -timeout 1m
+
+
+      - run:
+          name: Run unit test
+          command: |
+            make test
