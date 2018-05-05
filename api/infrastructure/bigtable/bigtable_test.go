@@ -142,8 +142,8 @@ func TestTables(t *testing.T) {
 	}{
 		{
 			[]string{
-				"users",
 				"articles",
+				"users",
 			},
 		},
 	}

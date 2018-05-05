@@ -2,6 +2,7 @@ package bigtable
 
 import (
 	"context"
+	"sort"
 
 	"cloud.google.com/go/bigtable"
 	"github.com/takashabe/btcli/api/domain"
@@ -93,5 +94,10 @@ func readRow(r bigtable.Row) *domain.Row {
 }
 
 func (b *bigtableRepository) Tables(ctx context.Context) ([]string, error) {
-	return b.adminClient.Tables(ctx)
+	tbls, err := b.adminClient.Tables(ctx)
+	if err != nil {
+		return []string{}, err
+	}
+	sort.Strings(tbls)
+	return tbls, nil
 }
