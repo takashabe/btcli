@@ -1,11 +1,9 @@
 package interfaces
 
 import (
-	"context"
 	"fmt"
 	"os"
 
-	"github.com/k0kubun/pp"
 	"github.com/takashabe/btcli/api/application"
 	"github.com/takashabe/btcli/api/infrastructure/bigtable"
 )
@@ -26,7 +24,6 @@ func init() {
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to initialized bigtable repository:%v", err)
 	}
-	pp.Println(repository.Tables(context.Background()))
 	tableInteractor = application.NewTableInteractor(repository)
 	rowsInteractor = application.NewRowsInteractor(repository)
 }
