@@ -28,8 +28,7 @@ jobs:
       - run:
           name: Wait for db startup
           command: |
-            ./dockerize -wait tcp://localhost:3306 -timeout 1m
-
+            ./dockerize -wait tcp://localhost:8864 -timeout 1m
 
       - run:
           name: Run unit test
