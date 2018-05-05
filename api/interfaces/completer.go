@@ -42,7 +42,9 @@ func completeWithArguments(args ...string) []prompt.Suggest {
 	second := args[1]
 	switch first {
 	case "lookup", "read":
-		return prompt.FilterHasPrefix(getTableSuggestions(), second, true)
+		if len(args) == 2 {
+			return prompt.FilterHasPrefix(getTableSuggestions(), second, true)
+		}
 	}
 
 	return []prompt.Suggest{}
