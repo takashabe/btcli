@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/k0kubun/pp"
+	"github.com/takashabe/btcli/api/domain"
 )
 
 // Executor invoke the command
@@ -33,8 +34,9 @@ func Executor(s string) {
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "%v", err)
 		}
-		pp.Println(tables)
-		fmt.Fprintln(os.Stdout, pp.Sprint(tables))
+		for _, tbl := range tables {
+			fmt.Fprintln(os.Stdout, tbl)
+		}
 	case "lookup":
 		if len(args) != 3 {
 			fmt.Fprintln(os.Stderr, "Invalid args: ls <table> <row>")
@@ -47,18 +49,39 @@ func Executor(s string) {
 		}
 		fmt.Fprintln(os.Stdout, pp.Sprint(row))
 	case "read":
-		if len(args) != 3 {
+		if len(args) < 2 {
 			fmt.Fprintln(os.Stderr, "Invalid args: read <table> <prefix>")
 			return
 		}
-		rows, err := rowsInteractor.GetRows(ctx, args[1], args[2])
+		table := args[1]
+		key := ""
+		if len(args) >= 3 {
+			key = args[2]
+		}
+		rows, err := rowsInteractor.GetRows(ctx, table, key)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "%v", err)
 			return
 		}
-		fmt.Fprintln(os.Stdout, pp.Sprint(rows))
+		printRows(rows)
 	default:
 		fmt.Fprintf(os.Stderr, "Unknown command: %s\n", cmd)
 	}
 	return
+}
+
+func printRows(rs []*domain.Row) {
+	for _, r := range rs {
+		printRow(r)
+	}
+}
+
+func printRow(r *domain.Row) {
+	fmt.Println(strings.Repeat("-", 40))
+	fmt.Println(r.Key)
+
+	for _, c := range r.Columns {
+		fmt.Printf("  %-40s @ %s\n", c.Qualifier, c.Version.Format("2006/01/02-15:04:05.000000"))
+		fmt.Printf("    %q\n", c.Value)
+	}
 }
