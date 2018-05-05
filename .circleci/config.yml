@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: golang:1.10-alpine
+      - image: circleci/golang:1.10
       - image: google/cloud-sdk
         ports:
           - "8864:8864"
