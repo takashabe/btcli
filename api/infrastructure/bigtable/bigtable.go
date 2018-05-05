@@ -90,6 +90,10 @@ func readRow(r bigtable.Row) *domain.Row {
 			ret.Columns = append(ret.Columns, c)
 		}
 	}
+
+	sort.Slice(ret.Columns, func(i, j int) bool {
+		return ret.Columns[i].Family > ret.Columns[j].Family
+	})
 	return ret
 }
 
