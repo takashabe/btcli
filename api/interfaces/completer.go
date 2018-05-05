@@ -1,6 +1,7 @@
 package interfaces
 
 import (
+	"context"
 	"strings"
 
 	prompt "github.com/c-bata/go-prompt"
@@ -51,5 +52,14 @@ func completeWithArguments(args ...string) []prompt.Suggest {
 }
 
 func getTableSuggestions() []prompt.Suggest {
-	return tables
+	tbls, err := tableInteractor.GetTables(context.Background())
+	if err != nil {
+		return []prompt.Suggest{}
+	}
+
+	s := make([]prompt.Suggest, 0, len(tbls))
+	for _, t := range tbls {
+		s = append(s, prompt.Suggest{Text: t})
+	}
+	return s
 }
