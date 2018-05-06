@@ -3,9 +3,9 @@ jobs:
   build:
     docker:
       - image: circleci/golang:1.10
+        environment:
+          BIGTABLE_EMULATOR_HOST: 127.0.0.1:8864
       - image: google/cloud-sdk
-        ports:
-          - "8864:8864"
         command: gcloud beta emulators bigtable start --host-port 0.0.0.0:8864 --project test-project
 
     working_directory: /go/src/github.com/takashabe/btcli
@@ -26,9 +26,9 @@ jobs:
             make deps
 
       - run:
-          name: Wait for db startup
+          name: Wait for backend services startup
           command: |
-            ./dockerize -wait tcp://localhost:8864 -timeout 1m
+            ./dockerize -wait tcp://127.0.0.1:8864 -timeout 1m
 
       - run:
           name: Run unit test
