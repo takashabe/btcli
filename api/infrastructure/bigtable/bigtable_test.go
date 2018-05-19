@@ -10,7 +10,10 @@ import (
 )
 
 func TestGet(t *testing.T) {
+	loadFixture(t, "testdata/users.yaml")
+	loadFixture(t, "testdata/articles.yaml")
 	now := time.Now()
+
 	cases := []struct {
 		table  string
 		key    string
@@ -71,7 +74,10 @@ func TestGet(t *testing.T) {
 }
 
 func TestGetRowsWithPrefix(t *testing.T) {
+	loadFixture(t, "testdata/users.yaml")
+	loadFixture(t, "testdata/articles.yaml")
 	now := time.Now()
+
 	cases := []struct {
 		table  string
 		key    string
@@ -137,6 +143,9 @@ func TestGetRowsWithPrefix(t *testing.T) {
 }
 
 func TestTables(t *testing.T) {
+	loadFixture(t, "testdata/users.yaml")
+	loadFixture(t, "testdata/articles.yaml")
+
 	cases := []struct {
 		expect []string
 	}{
@@ -154,6 +163,6 @@ func TestTables(t *testing.T) {
 		tbls, err := r.Tables(context.Background())
 		assert.NoError(t, err)
 
-		assert.Equal(t, c.expect, tbls)
+		assert.Subset(t, tbls, c.expect)
 	}
 }
