@@ -1,0 +1,19 @@
+table: users
+column_families:
+  - family: d
+    columns:
+      - key: 1
+        rows:
+          row: madoka
+      - key: 2
+        rows:
+          row: homura
+      - key: 3
+        rows:
+          row: sayaka
+      - key: 4
+        rows:
+          row: kyouko
+      - key: 4
+        rows:
+          row: anko

@@ -1,0 +1,16 @@
+table: articles
+column_families:
+  - family: d
+    columns:
+      - key: 1##1
+        rows:
+          title: madoka_title
+          content: madoka_content
+      - key: 2##1
+        rows:
+          title: homura_title
+          content: homura_content
+      - key: 2##2
+        rows:
+          title: homuhomu_title
+          content: homuhomu_content
