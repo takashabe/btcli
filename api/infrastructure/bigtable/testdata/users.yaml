@@ -3,17 +3,22 @@ column_families:
   - family: d
     columns:
       - key: 1
+        version: 2018-01-01 00:00:00 +00:00
         rows:
           row: madoka
       - key: 2
+        version: 2018-01-01 00:00:00 +00:00
         rows:
           row: homura
       - key: 3
+        version: 2018-01-01 00:00:00 +00:00
         rows:
           row: sayaka
       - key: 4
+        version: 2018-01-01 00:00:00 +00:00
         rows:
           row: kyouko
       - key: 4
+        version: 2018-01-01 01:00:00 +00:00
         rows:
           row: anko
