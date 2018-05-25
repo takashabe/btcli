@@ -76,13 +76,38 @@ func TestGet(t *testing.T) {
 func TestGetRowsWithPrefix(t *testing.T) {
 	loadFixture(t, "testdata/users.yaml")
 	loadFixture(t, "testdata/articles.yaml")
-	now := time.Now()
+	utc, _ := time.LoadLocation("UTC")
+	ver := time.Date(2018, 01, 01, 0, 0, 0, 0, utc)
+	ver = ver.Local()
 
 	cases := []struct {
 		table  string
 		key    string
 		expect []*domain.Row
 	}{
+		{
+			"users",
+			"4",
+			[]*domain.Row{
+				&domain.Row{
+					Key: "4",
+					Columns: []*domain.Column{
+						&domain.Column{
+							Family:    "d",
+							Qualifier: "d:row",
+							Value:     []byte("anko"),
+							Version:   ver.Add(time.Hour),
+						},
+						&domain.Column{
+							Family:    "d",
+							Qualifier: "d:row",
+							Value:     []byte("kyouko"),
+							Version:   ver,
+						},
+					},
+				},
+			},
+		},
 		{
 			"articles",
 			"2",
@@ -94,13 +119,13 @@ func TestGetRowsWithPrefix(t *testing.T) {
 							Family:    "d",
 							Qualifier: "d:content",
 							Value:     []byte("homura_content"),
-							Version:   now,
+							Version:   ver,
 						},
 						&domain.Column{
 							Family:    "d",
 							Qualifier: "d:title",
 							Value:     []byte("homura_title"),
-							Version:   now,
+							Version:   ver,
 						},
 					},
 				},
@@ -111,13 +136,13 @@ func TestGetRowsWithPrefix(t *testing.T) {
 							Family:    "d",
 							Qualifier: "d:content",
 							Value:     []byte("homuhomu_content"),
-							Version:   now,
+							Version:   ver,
 						},
 						&domain.Column{
 							Family:    "d",
 							Qualifier: "d:title",
 							Value:     []byte("homuhomu_title"),
-							Version:   now,
+							Version:   ver,
 						},
 					},
 				},
@@ -131,13 +156,7 @@ func TestGetRowsWithPrefix(t *testing.T) {
 		bt, err := r.GetRowsWithPrefix(context.Background(), c.table, c.key)
 		assert.NoError(t, err)
 
-		// NOTE: hack to version timestamp
 		actual := bt.Rows
-		for _, row := range actual {
-			for _, col := range row.Columns {
-				col.Version = now
-			}
-		}
 		assert.Equal(t, c.expect, actual)
 	}
 }
