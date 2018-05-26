@@ -1,17 +1,15 @@
 package main
 
 import (
-	"fmt"
+	"os"
 
-	prompt "github.com/c-bata/go-prompt"
 	"github.com/takashabe/btcli/api/interfaces"
 )
 
 func main() {
-	fmt.Println("Please select table.")
-	p := prompt.New(
-		interfaces.Executor,
-		interfaces.Completer,
-	)
-	p.Run()
+	cli := &interfaces.CLI{
+		OutStream: os.Stdout,
+		ErrStream: os.Stderr,
+	}
+	os.Exit(cli.Run(os.Args))
 }
