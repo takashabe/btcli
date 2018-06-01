@@ -53,11 +53,7 @@ func (c *CLI) Run(args []string) int {
 		return ExitCodeParseError
 	}
 
-	c.preparePrompt(param)
-	p := prompt.New(
-		Executor,
-		Completer,
-	)
+	p := c.preparePrompt(param)
 	p.Run()
 
 	// TODO: This is dead code. Invoke os.Exit by the prompt.Run
@@ -78,11 +74,24 @@ func (c *CLI) parseArgs(args []string, p *param) error {
 	return nil
 }
 
-func (c *CLI) preparePrompt(p *param) {
+func (c *CLI) preparePrompt(p *param) *prompt.Prompt {
 	repository, err := bigtable.NewBigtableRepository(p.project, p.instance)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to initialized bigtable repository:%v", err)
 	}
-	tableInteractor = application.NewTableInteractor(repository)
-	rowsInteractor = application.NewRowsInteractor(repository)
+	tableInteractor := application.NewTableInteractor(repository)
+	rowsInteractor := application.NewRowsInteractor(repository)
+
+	executor := Executor{
+		rowsInteractor:  rowsInteractor,
+		tableInteractor: tableInteractor,
+	}
+	completer := Completer{
+		tableInteractor: tableInteractor,
+	}
+
+	return prompt.New(
+		executor.Do,
+		completer.Do,
+	)
 }

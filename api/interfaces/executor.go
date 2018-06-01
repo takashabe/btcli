@@ -7,11 +7,18 @@ import (
 	"strings"
 
 	"github.com/k0kubun/pp"
+	"github.com/takashabe/btcli/api/application"
 	"github.com/takashabe/btcli/api/domain"
 )
 
-// Executor invoke the command
-func Executor(s string) {
+// Executor provides exec command handler
+type Executor struct {
+	tableInteractor *application.TableInteractor
+	rowsInteractor  *application.RowsInteractor
+}
+
+// Do provides execute command
+func (e *Executor) Do(s string) {
 	s = strings.TrimSpace(s)
 	if s == "" {
 		return
@@ -20,7 +27,6 @@ func Executor(s string) {
 	if s == "quit" || s == "exit" {
 		fmt.Println("Bye!")
 		os.Exit(0)
-		return
 	}
 
 	ctx := context.Background()

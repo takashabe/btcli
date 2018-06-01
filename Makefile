@@ -19,7 +19,7 @@ deps: ## Setup dependencies package
 	dep ensure
 
 test: ## Run go test
-	go test -v -p 1 $(SUBPACKAGES)
+	go test -v $(SUBPACKAGES)
 
 vet: ## Check go vet
 	go vet $(SUBPACKAGES)
