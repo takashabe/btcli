@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	prompt "github.com/c-bata/go-prompt"
+	"github.com/takashabe/btcli/api/application"
 )
 
 var commands = []prompt.Suggest{
@@ -18,13 +19,13 @@ var commands = []prompt.Suggest{
 	{Text: "quit", Description: "Exit this prompt"},
 }
 
-var tables = []prompt.Suggest{
-	{Text: "users", Description: "users"},
-	{Text: "articles", Description: "articles"},
+// Completer provides completion command handler
+type Completer struct {
+	tableInteractor *application.TableInteractor
 }
 
-// Completer provide completion to prompt
-func Completer(d prompt.Document) []prompt.Suggest {
+// Do provide completion to prompt
+func (h *Completer) Do(d prompt.Document) []prompt.Suggest {
 	if d.TextBeforeCursor() == "" {
 		return []prompt.Suggest{}
 	}
@@ -38,10 +39,10 @@ func completeWithArguments(args ...string) []prompt.Suggest {
 		return prompt.FilterHasPrefix(commands, args[0], true)
 	}
 
-	first := args[0]
+	cmd := args[0]
 
 	second := args[1]
-	switch first {
+	switch cmd {
 	case "lookup", "read":
 		if len(args) == 2 {
 			return prompt.FilterHasPrefix(getTableSuggestions(), second, true)
