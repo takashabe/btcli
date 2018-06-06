@@ -73,6 +73,17 @@ func (b *bigtableRepository) GetRowsWithPrefix(ctx context.Context, table, key s
 	}, nil
 }
 
+func (b *bigtableRepository) Count(ctx context.Context, table string) (int, error) {
+	tbl := b.client.Open(table)
+
+	cnt := 0
+	err := tbl.ReadRows(ctx, bigtable.InfiniteRange(""), func(_ bigtable.Row) bool {
+		cnt++
+		return true
+	}, bigtable.RowFilter(bigtable.StripValueFilter()))
+	return cnt, err
+}
+
 func readRow(r bigtable.Row) *domain.Row {
 	ret := &domain.Row{
 		Key:     r.Key(),
