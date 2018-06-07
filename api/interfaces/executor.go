@@ -36,7 +36,7 @@ func (e *Executor) Do(s string) {
 	// TODO: extract function per commands
 	switch cmd {
 	case "ls":
-		tables, err := tableInteractor.GetTables(ctx)
+		tables, err := e.tableInteractor.GetTables(ctx)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "%v", err)
 		}
@@ -48,7 +48,7 @@ func (e *Executor) Do(s string) {
 			fmt.Fprintln(os.Stderr, "Invalid args: ls <table> <row>")
 			return
 		}
-		row, err := rowsInteractor.GetRow(ctx, args[1], args[2])
+		row, err := e.rowsInteractor.GetRow(ctx, args[1], args[2])
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "%v", err)
 			return
@@ -64,7 +64,7 @@ func (e *Executor) Do(s string) {
 		if len(args) >= 3 {
 			key = args[2]
 		}
-		rows, err := rowsInteractor.GetRows(ctx, table, key)
+		rows, err := e.rowsInteractor.GetRows(ctx, table, key)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "%v", err)
 			return
