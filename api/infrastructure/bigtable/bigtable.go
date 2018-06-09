@@ -55,7 +55,7 @@ func (b *bigtableRepository) Get(ctx context.Context, table, key string) (*domai
 	}, nil
 }
 
-func (b *bigtableRepository) GetRows(ctx context.Context, table string, rr bigtable.RowSet, opts ...bigtable.ReadOption) (*domain.Bigtable, error) {
+func (b *bigtableRepository) GetRows(ctx context.Context, table string, rr bigtable.RowRange, opts ...bigtable.ReadOption) (*domain.Bigtable, error) {
 	tbl := b.client.Open(table)
 
 	rows := []*domain.Row{}

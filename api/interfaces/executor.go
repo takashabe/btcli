@@ -3,9 +3,12 @@ package interfaces
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
+	"strconv"
 	"strings"
 
+	"cloud.google.com/go/bigtable"
 	"github.com/k0kubun/pp"
 	"github.com/takashabe/btcli/api/application"
 	"github.com/takashabe/btcli/api/domain"
@@ -56,24 +59,73 @@ func (e *Executor) Do(s string) {
 		fmt.Fprintln(os.Stdout, pp.Sprint(row))
 	case "read":
 		if len(args) < 2 {
-			fmt.Fprintln(os.Stderr, "Invalid args: read <table> <prefix>")
+			fmt.Fprintln(os.Stderr, "Invalid args: read <table> [args ...]")
 			return
 		}
 		table := args[1]
-		key := ""
-		if len(args) >= 3 {
-			key = args[2]
-		}
-		rows, err := e.rowsInteractor.GetRows(ctx, table, key)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "%v", err)
-			return
-		}
-		printRows(rows)
+		e.readWithOptions(table, args[1:]...)
 	default:
 		fmt.Fprintf(os.Stderr, "Unknown command: %s\n", cmd)
 	}
 	return
+}
+
+func (e *Executor) readWithOptions(table string, args ...string) {
+	parsed := make(map[string]string)
+	for _, arg := range args {
+		i := strings.Index(arg, "=")
+		if i < 0 {
+			fmt.Fprintf(os.Stderr, "Invalid args: %v\n", arg)
+			return
+		}
+		key, val := arg[:i], arg[i+1:]
+		switch key {
+		default:
+			fmt.Fprintf(os.Stderr, "Unknown arg: %v\n", arg)
+			return
+		case "prefix":
+			parsed[key] = val
+		}
+	}
+
+	rr := rowRange(parsed)
+	ro := readOption(parsed)
+
+	ctx := context.Background()
+	rows, err := e.rowsInteractor.GetRows(ctx, table, rr, ro...)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%v", err)
+		return
+	}
+	printRows(rows)
+}
+
+func rowRange(parsedArgs map[string]string) bigtable.RowRange {
+	var rr bigtable.RowRange
+	if prefix := parsedArgs["prefix"]; prefix != "" {
+		rr = bigtable.PrefixRange(prefix)
+	}
+
+	return rr
+}
+
+func readOption(parsedArgs map[string]string) []bigtable.ReadOption {
+	var opts []bigtable.ReadOption
+	if count := parsedArgs["count"]; count != "" {
+		n, err := strconv.ParseInt(count, 0, 64)
+		if err != nil {
+			log.Fatalf("Bad count %q: %v", count, err)
+		}
+		opts = append(opts, bigtable.LimitRows(n))
+	}
+	if regex := parsedArgs["regex"]; regex != "" {
+		opts = append(opts, bigtable.RowFilter(bigtable.RowKeyFilter(regex)))
+	}
+
+	// filter
+	// TODO: decide filter option names. refs hbase-shell
+
+	return opts
 }
 
 func printRows(rs []*domain.Row) {

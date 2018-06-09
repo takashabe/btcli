@@ -26,6 +26,8 @@ CLI client for the Bigtable with auto-completion.
 - [x] lookup                    Read from a single row
 - [x] ls                        List tables and column families
 - [ ] read                      Read rows
+    - [ ] prefix
+    - [ ] version
 - [ ] set                       Set value of a cell
 - [ ] setgcpolicy               Set the GC policy for a column family
 - [ ] help                      Print help text
