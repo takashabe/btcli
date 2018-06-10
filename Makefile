@@ -27,6 +27,9 @@ vet: ## Check go vet
 lint: ## Check golint
 	golint $(SUBPACKAGES)
 
+generate: ## Run go generate
+	go generate $(SUBPACKAGES)
+
 ##### Utilities
 
 .PHONY: help

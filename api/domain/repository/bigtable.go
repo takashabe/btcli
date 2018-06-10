@@ -1,5 +1,7 @@
 package repository
 
+//go:generate mockgen --package=repository -source=bigtable.go -destination=bigtable_mock.go
+
 import (
 	"context"
 
