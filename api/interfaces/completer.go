@@ -25,16 +25,16 @@ type Completer struct {
 }
 
 // Do provide completion to prompt
-func (h *Completer) Do(d prompt.Document) []prompt.Suggest {
+func (c *Completer) Do(d prompt.Document) []prompt.Suggest {
 	if d.TextBeforeCursor() == "" {
 		return []prompt.Suggest{}
 	}
 	args := strings.Split(d.TextBeforeCursor(), " ")
 
-	return completeWithArguments(args...)
+	return c.completeWithArguments(args...)
 }
 
-func completeWithArguments(args ...string) []prompt.Suggest {
+func (c *Completer) completeWithArguments(args ...string) []prompt.Suggest {
 	if len(args) <= 1 {
 		return prompt.FilterHasPrefix(commands, args[0], true)
 	}
@@ -45,15 +45,15 @@ func completeWithArguments(args ...string) []prompt.Suggest {
 	switch cmd {
 	case "lookup", "read":
 		if len(args) == 2 {
-			return prompt.FilterHasPrefix(getTableSuggestions(), second, true)
+			return prompt.FilterHasPrefix(c.getTableSuggestions(), second, true)
 		}
 	}
 
 	return []prompt.Suggest{}
 }
 
-func getTableSuggestions() []prompt.Suggest {
-	tbls, err := tableInteractor.GetTables(context.Background())
+func (c *Completer) getTableSuggestions() []prompt.Suggest {
+	tbls, err := c.tableInteractor.GetTables(context.Background())
 	if err != nil {
 		return []prompt.Suggest{}
 	}

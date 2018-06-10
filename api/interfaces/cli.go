@@ -12,11 +12,6 @@ import (
 	"github.com/takashabe/btcli/api/infrastructure/bigtable"
 )
 
-var (
-	tableInteractor *application.TableInteractor
-	rowsInteractor  *application.RowsInteractor
-)
-
 // exit codes
 const (
 	ExitCodeOK = 0
