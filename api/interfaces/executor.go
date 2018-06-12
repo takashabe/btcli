@@ -3,7 +3,6 @@ package interfaces
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -88,8 +87,16 @@ func (e *Executor) readWithOptions(table string, args ...string) {
 		}
 	}
 
-	rr := rowRange(parsed)
-	ro := readOption(parsed)
+	rr, err := rowRange(parsed)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Invlaid range: %v\n", err)
+		return
+	}
+	ro, err := readOption(parsed)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Invalid options: %v\n", err)
+		return
+	}
 
 	ctx := context.Background()
 	rows, err := e.rowsInteractor.GetRows(ctx, table, rr, ro...)
@@ -100,21 +107,21 @@ func (e *Executor) readWithOptions(table string, args ...string) {
 	printRows(rows)
 }
 
-func rowRange(parsedArgs map[string]string) bigtable.RowRange {
+func rowRange(parsedArgs map[string]string) (bigtable.RowRange, error) {
 	var rr bigtable.RowRange
 	if prefix := parsedArgs["prefix"]; prefix != "" {
 		rr = bigtable.PrefixRange(prefix)
 	}
 
-	return rr
+	return rr, nil
 }
 
-func readOption(parsedArgs map[string]string) []bigtable.ReadOption {
+func readOption(parsedArgs map[string]string) ([]bigtable.ReadOption, error) {
 	var opts []bigtable.ReadOption
 	if count := parsedArgs["count"]; count != "" {
 		n, err := strconv.ParseInt(count, 0, 64)
 		if err != nil {
-			log.Fatalf("Bad count %q: %v", count, err)
+			return nil, err
 		}
 		opts = append(opts, bigtable.LimitRows(n))
 	}
@@ -125,7 +132,7 @@ func readOption(parsedArgs map[string]string) []bigtable.ReadOption {
 	// filter
 	// TODO: decide filter option names. refs hbase-shell
 
-	return opts
+	return opts, nil
 }
 
 func printRows(rs []*domain.Row) {
