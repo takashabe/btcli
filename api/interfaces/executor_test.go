@@ -38,12 +38,25 @@ func TestRowRange(t *testing.T) {
 
 func TestReadOption(t *testing.T) {
 	cases := []struct {
-		input  map[string]string
-		expect []bigtable.ReadOption
+		input   map[string]string
+		expects []bigtable.ReadOption
 	}{
 		{
 			map[string]string{
 				"count": "1",
+			},
+			[]bigtable.ReadOption{
+				bigtable.LimitRows(0),
+			},
+		},
+		{
+			map[string]string{
+				"count": "1",
+				"regex": "1",
+			},
+			[]bigtable.ReadOption{
+				bigtable.LimitRows(0),
+				bigtable.RowFilter(bigtable.RowKeyFilter("")),
 			},
 		},
 	}
@@ -51,12 +64,18 @@ func TestReadOption(t *testing.T) {
 		actual, err := readOption(c.input)
 		assert.NoError(t, err)
 
-		// TODO: Compare types actual and expect
-		fmt.Println(reflect.TypeOf(actual[0]) == reflect.TypeOf(bigtable.LimitRows(0)))
-		// _, ok := actual[0].(bigtable.LimitRows)
-		// if !ok {
-		//   assert.Fail(t, "unmatched readOption type")
-		// }
+		for _, e := range c.expects {
+			contain := false
+			expectType := reflect.TypeOf(e)
+			for _, a := range actual {
+				if expectType == reflect.TypeOf(a) {
+					contain = true
+				}
+			}
+			if !contain {
+				assert.Fail(t, fmt.Sprintf("Expect contan type '%v'", expectType))
+			}
+		}
 	}
 }
 
