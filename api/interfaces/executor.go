@@ -3,18 +3,21 @@ package interfaces
 import (
 	"context"
 	"fmt"
+	"io"
 	"os"
 	"strconv"
 	"strings"
 
 	"cloud.google.com/go/bigtable"
-	"github.com/k0kubun/pp"
 	"github.com/takashabe/btcli/api/application"
 	"github.com/takashabe/btcli/api/domain"
 )
 
 // Executor provides exec command handler
 type Executor struct {
+	outStream io.Writer
+	errStream io.Writer
+
 	tableInteractor *application.TableInteractor
 	rowsInteractor  *application.RowsInteractor
 }
@@ -27,7 +30,7 @@ func (e *Executor) Do(s string) {
 	}
 
 	if s == "quit" || s == "exit" {
-		fmt.Println("Bye!")
+		fmt.Fprintln(e.outStream, "Bye!")
 		os.Exit(0)
 	}
 
@@ -40,31 +43,31 @@ func (e *Executor) Do(s string) {
 	case "ls":
 		tables, err := e.tableInteractor.GetTables(ctx)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "%v", err)
+			fmt.Fprintf(e.errStream, "%v", err)
 		}
 		for _, tbl := range tables {
-			fmt.Fprintln(os.Stdout, tbl)
+			fmt.Fprintln(e.outStream, tbl)
 		}
 	case "lookup":
 		if len(args) != 3 {
-			fmt.Fprintln(os.Stderr, "Invalid args: ls <table> <row>")
+			fmt.Fprintln(e.errStream, "Invalid args: lookup <table> <row>")
 			return
 		}
 		row, err := e.rowsInteractor.GetRow(ctx, args[1], args[2])
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "%v", err)
+			fmt.Fprintf(e.errStream, "%v", err)
 			return
 		}
-		fmt.Fprintln(os.Stdout, pp.Sprint(row))
+		e.printRow(row)
 	case "read":
 		if len(args) < 2 {
-			fmt.Fprintln(os.Stderr, "Invalid args: read <table> [args ...]")
+			fmt.Fprintln(e.errStream, "Invalid args: read <table> [args ...]")
 			return
 		}
 		table := args[1]
-		e.readWithOptions(table, args[1:]...)
+		e.readWithOptions(table, args[2:]...)
 	default:
-		fmt.Fprintf(os.Stderr, "Unknown command: %s\n", cmd)
+		fmt.Fprintf(e.errStream, "Unknown command: %s\n", cmd)
 	}
 	return
 }
@@ -104,7 +107,7 @@ func (e *Executor) readWithOptions(table string, args ...string) {
 		fmt.Fprintf(os.Stderr, "%v", err)
 		return
 	}
-	printRows(rows)
+	e.printRows(rows)
 }
 
 func rowRange(parsedArgs map[string]string) (bigtable.RowRange, error) {
@@ -135,18 +138,18 @@ func readOption(parsedArgs map[string]string) ([]bigtable.ReadOption, error) {
 	return opts, nil
 }
 
-func printRows(rs []*domain.Row) {
+func (e *Executor) printRows(rs []*domain.Row) {
 	for _, r := range rs {
-		printRow(r)
+		e.printRow(r)
 	}
 }
 
-func printRow(r *domain.Row) {
-	fmt.Println(strings.Repeat("-", 40))
-	fmt.Println(r.Key)
+func (e *Executor) printRow(r *domain.Row) {
+	fmt.Fprintln(e.outStream, strings.Repeat("-", 40))
+	fmt.Fprintln(e.outStream, r.Key)
 
 	for _, c := range r.Columns {
-		fmt.Printf("  %-40s @ %s\n", c.Qualifier, c.Version.Format("2006/01/02-15:04:05.000000"))
-		fmt.Printf("    %q\n", c.Value)
+		fmt.Fprintf(e.outStream, "  %-40s @ %s\n", c.Qualifier, c.Version.Format("2006/01/02-15:04:05.000000"))
+		fmt.Fprintf(e.outStream, "    %q\n", c.Value)
 	}
 }

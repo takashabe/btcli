@@ -78,6 +78,8 @@ func (c *CLI) preparePrompt(p *param) *prompt.Prompt {
 	rowsInteractor := application.NewRowsInteractor(repository)
 
 	executor := Executor{
+		outStream:       c.OutStream,
+		errStream:       c.ErrStream,
 		rowsInteractor:  rowsInteractor,
 		tableInteractor: tableInteractor,
 	}
