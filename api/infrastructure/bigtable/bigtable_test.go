@@ -161,6 +161,26 @@ func TestGetRowsWithPrefix(t *testing.T) {
 	}
 }
 
+func TestCount(t *testing.T) {
+	loadFixture(t, "testdata/users.yaml")
+
+	cases := []struct {
+		table  string
+		expect int
+	}{
+		{"users", 4},
+	}
+	for _, c := range cases {
+		r, err := NewBigtableRepository("test-project", "test-instance")
+		assert.NoError(t, err)
+
+		cnt, err := r.Count(context.Background(), c.table)
+		assert.NoError(t, err)
+
+		assert.Equal(t, c.expect, cnt)
+	}
+}
+
 func TestTables(t *testing.T) {
 	loadFixture(t, "testdata/users.yaml")
 	loadFixture(t, "testdata/articles.yaml")

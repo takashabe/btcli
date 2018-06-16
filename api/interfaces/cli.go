@@ -12,11 +12,6 @@ import (
 	"github.com/takashabe/btcli/api/infrastructure/bigtable"
 )
 
-var (
-	tableInteractor *application.TableInteractor
-	rowsInteractor  *application.RowsInteractor
-)
-
 // exit codes
 const (
 	ExitCodeOK = 0
@@ -83,6 +78,8 @@ func (c *CLI) preparePrompt(p *param) *prompt.Prompt {
 	rowsInteractor := application.NewRowsInteractor(repository)
 
 	executor := Executor{
+		outStream:       c.OutStream,
+		errStream:       c.ErrStream,
 		rowsInteractor:  rowsInteractor,
 		tableInteractor: tableInteractor,
 	}

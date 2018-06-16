@@ -3,6 +3,7 @@ package application
 import (
 	"context"
 
+	"cloud.google.com/go/bigtable"
 	"github.com/takashabe/btcli/api/domain"
 	"github.com/takashabe/btcli/api/domain/repository"
 )
@@ -29,8 +30,8 @@ func (t *RowsInteractor) GetRow(ctx context.Context, table, key string) (*domain
 }
 
 // GetRows returns rows
-func (t *RowsInteractor) GetRows(ctx context.Context, table, key string) ([]*domain.Row, error) {
-	tbl, err := t.repository.GetRowsWithPrefix(ctx, table, key)
+func (t *RowsInteractor) GetRows(ctx context.Context, table string, rr bigtable.RowRange, opts ...bigtable.ReadOption) ([]*domain.Row, error) {
+	tbl, err := t.repository.GetRows(ctx, table, rr, opts...)
 	if err != nil {
 		return nil, err
 	}
