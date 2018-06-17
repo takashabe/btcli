@@ -62,7 +62,7 @@ func (b *bigtableRepository) GetRows(ctx context.Context, table string, rr bigta
 	err := tbl.ReadRows(ctx, rr, func(row bigtable.Row) bool {
 		rows = append(rows, readRow(row))
 		return true
-	})
+	}, opts...)
 	if err != nil {
 		return nil, err
 	}

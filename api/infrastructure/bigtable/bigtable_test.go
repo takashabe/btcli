@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"cloud.google.com/go/bigtable"
 	"github.com/stretchr/testify/assert"
 	"github.com/takashabe/btcli/api/domain"
 )
@@ -154,6 +155,69 @@ func TestGetRowsWithPrefix(t *testing.T) {
 		assert.NoError(t, err)
 
 		bt, err := r.GetRowsWithPrefix(context.Background(), c.table, c.key)
+		assert.NoError(t, err)
+
+		actual := bt.Rows
+		assert.Equal(t, c.expect, actual)
+	}
+}
+
+func TestGetRows(t *testing.T) {
+	loadFixture(t, "testdata/users.yaml")
+	loadFixture(t, "testdata/articles.yaml")
+	tm, _ := time.Parse("2006-01-02 15:04:05", "2018-01-01 00:00:00")
+	tm = tm.Local()
+
+	cases := []struct {
+		table  string
+		rr     bigtable.RowRange
+		opts   []bigtable.ReadOption
+		expect []*domain.Row
+	}{
+		{
+			"users",
+			bigtable.PrefixRange("1"),
+			[]bigtable.ReadOption{},
+			[]*domain.Row{
+				&domain.Row{
+					Key: "1",
+					Columns: []*domain.Column{
+						&domain.Column{
+							Family:    "d",
+							Qualifier: "d:row",
+							Value:     []byte("madoka"),
+							Version:   tm,
+						},
+					},
+				},
+			},
+		},
+		{
+			"users",
+			bigtable.PrefixRange("4"),
+			[]bigtable.ReadOption{
+				bigtable.RowFilter(bigtable.LatestNFilter(1)),
+			},
+			[]*domain.Row{
+				&domain.Row{
+					Key: "4",
+					Columns: []*domain.Column{
+						&domain.Column{
+							Family:    "d",
+							Qualifier: "d:row",
+							Value:     []byte("anko"),
+							Version:   tm.Add(time.Hour),
+						},
+					},
+				},
+			},
+		},
+	}
+	for _, c := range cases {
+		r, err := NewBigtableRepository("test-project", "test-instance")
+		assert.NoError(t, err)
+
+		bt, err := r.GetRows(context.Background(), c.table, c.rr, c.opts...)
 		assert.NoError(t, err)
 
 		actual := bt.Rows

@@ -87,6 +87,10 @@ func (e *Executor) readWithOptions(table string, args ...string) {
 			return
 		case "prefix":
 			parsed[key] = val
+		case "count":
+			parsed[key] = val
+		case "version":
+			parsed[key] = val
 		}
 	}
 
@@ -131,9 +135,15 @@ func readOption(parsedArgs map[string]string) ([]bigtable.ReadOption, error) {
 	if regex := parsedArgs["regex"]; regex != "" {
 		opts = append(opts, bigtable.RowFilter(bigtable.RowKeyFilter(regex)))
 	}
+	if version := parsedArgs["version"]; version != "" {
+		n, err := strconv.ParseInt(version, 0, 64)
+		if err != nil {
+			return nil, err
+		}
+		opts = append(opts, bigtable.RowFilter(bigtable.LatestNFilter(int(n))))
+	}
 
-	// filter
-	// TODO: decide filter option names. refs hbase-shell
+	// TODO: Add read options. refs hbase-shell
 
 	return opts, nil
 }

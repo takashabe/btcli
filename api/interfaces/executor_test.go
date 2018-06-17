@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"reflect"
 	"testing"
+	"time"
 
 	"cloud.google.com/go/bigtable"
 	"github.com/golang/mock/gomock"
@@ -84,6 +85,7 @@ func TestReadOption(t *testing.T) {
 }
 
 func TestDoExecutor(t *testing.T) {
+	tm, _ := time.Parse("2006-01-02 15:04:05", "2018-01-01 00:00:00")
 	cases := []struct {
 		input   string
 		expect  string
@@ -119,10 +121,10 @@ func TestDoExecutor(t *testing.T) {
 			},
 		},
 		{
-			"read table prefix=a",
-			"----------------------------------------\na\n  d:row                                    @ 0001/01/01-00:00:00.000000\n    \"a1\"\n",
+			"read table prefix=a version=1",
+			"----------------------------------------\na\n  d:row                                    @ 2018/01/01-00:00:00.000000\n    \"a1\"\n",
 			func(mock *repository.MockBigtable) {
-				mock.EXPECT().GetRows(gomock.Any(), "table", bigtable.PrefixRange("a")).Return(
+				mock.EXPECT().GetRows(gomock.Any(), "table", bigtable.PrefixRange("a"), bigtable.RowFilter(bigtable.LatestNFilter(1))).Return(
 					&domain.Bigtable{
 						Table: "table",
 						Rows: []*domain.Row{
@@ -133,6 +135,7 @@ func TestDoExecutor(t *testing.T) {
 										Family:    "d",
 										Qualifier: "d:row",
 										Value:     []byte("a1"),
+										Version:   tm,
 									},
 								},
 							},
