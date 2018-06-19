@@ -2,8 +2,10 @@ package interfaces
 
 import (
 	"context"
+	"encoding/binary"
 	"fmt"
 	"io"
+	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -160,6 +162,31 @@ func (e *Executor) printRow(r *domain.Row) {
 
 	for _, c := range r.Columns {
 		fmt.Fprintf(e.outStream, "  %-40s @ %s\n", c.Qualifier, c.Version.Format("2006/01/02-15:04:05.000000"))
-		fmt.Fprintf(e.outStream, "    %q\n", c.Value)
+		e.printValue(c.Value)
 	}
+}
+
+func (e *Executor) printValue(v []byte) {
+	if len(v) != 8 {
+		fmt.Fprintf(e.outStream, "    %q\n", v)
+		return
+	}
+
+	// guess: float decides by high 2-bit flag
+	// https://en.wikipedia.org/wiki/Double-precision_floating-point_format
+	switch v[0] << 1 >> 7 & 1 {
+	case 1:
+		fmt.Fprintf(e.outStream, "    %f\n", e.byte2Float(v))
+	case 0:
+		fmt.Fprintf(e.outStream, "    %d\n", e.byte2Int(v))
+	}
+}
+
+func (*Executor) byte2Int(b []byte) int64 {
+	return (int64)(binary.BigEndian.Uint64(b))
+}
+
+func (*Executor) byte2Float(b []byte) float64 {
+	bits := binary.BigEndian.Uint64(b)
+	return math.Float64frombits(bits)
 }

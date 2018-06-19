@@ -166,3 +166,60 @@ func TestDoExecutor(t *testing.T) {
 		assert.Equal(t, c.expect, buf.String())
 	}
 }
+
+func TestPrintRows(t *testing.T) {
+	cases := []struct {
+		input  *domain.Row
+		expect string
+	}{
+		{
+			&domain.Row{
+				Key: "a",
+				Columns: []*domain.Column{
+					&domain.Column{
+						Family:    "d",
+						Qualifier: "d:row",
+						Value:     []byte("a1"),
+					},
+				},
+			},
+			"----------------------------------------\na\n  d:row                                    @ 0001/01/01-00:00:00.000000\n    \"a1\"\n",
+		},
+		{
+			&domain.Row{
+				Key: "a",
+				Columns: []*domain.Column{
+					&domain.Column{
+						Family:    "d",
+						Qualifier: "d:row",
+						Value:     []uint8{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01}, // 1.0
+					},
+				},
+			},
+			"----------------------------------------\na\n  d:row                                    @ 0001/01/01-00:00:00.000000\n    1\n",
+		},
+		{
+			&domain.Row{
+				Key: "a",
+				Columns: []*domain.Column{
+					&domain.Column{
+						Family:    "d",
+						Qualifier: "d:row",
+						Value:     []uint8{0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, // 2.0
+					},
+				},
+			},
+			"----------------------------------------\na\n  d:row                                    @ 0001/01/01-00:00:00.000000\n    2.000000\n",
+		},
+	}
+	for _, c := range cases {
+		var buf bytes.Buffer
+		executor := Executor{
+			outStream: &buf,
+			errStream: &buf,
+		}
+
+		executor.printRow(c.input)
+		assert.Equal(t, c.expect, buf.String())
+	}
+}
