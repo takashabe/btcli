@@ -212,6 +212,30 @@ func TestGetRows(t *testing.T) {
 				},
 			},
 		},
+		{
+			"articles",
+			bigtable.PrefixRange("3"),
+			[]bigtable.ReadOption{},
+			[]*domain.Row{
+				&domain.Row{
+					Key: "3##1",
+					Columns: []*domain.Column{
+						&domain.Column{
+							Family:    "d",
+							Qualifier: "d:content",
+							Value:     []uint8{0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
+							Version:   tm,
+						},
+						&domain.Column{
+							Family:    "d",
+							Qualifier: "d:title",
+							Value:     []uint8{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01},
+							Version:   tm,
+						},
+					},
+				},
+			},
+		},
 	}
 	for _, c := range cases {
 		r, err := NewBigtableRepository("test-project", "test-instance")
