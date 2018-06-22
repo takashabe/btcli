@@ -28,6 +28,12 @@
   version = "v1.1.0"
 
 [[projects]]
+  name = "github.com/golang/mock"
+  packages = ["gomock"]
+  revision = "c34cdb4725f4c3844d095133c6e40e448b86589b"
+  version = "v1.1.1"
+
+[[projects]]
   name = "github.com/golang/protobuf"
   packages = [
     "proto",
@@ -47,12 +53,6 @@
   packages = ["."]
   revision = "317e0006254c44a0ac427cc52a0e083ff0b9622f"
   version = "v2.0.0"
-
-[[projects]]
-  name = "github.com/k0kubun/pp"
-  packages = ["."]
-  revision = "027a6d1765d673d337e687394dbe780dd64e2a1e"
-  version = "v2.3.0"
 
 [[projects]]
   name = "github.com/mattn/go-colorable"
@@ -268,6 +268,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "3e1a432fe1af6891b9df39e34b1ba715268659a0358820cbb70ef33d53df0f41"
+  inputs-digest = "4deb11d6114d6e383c6129384f22f0a0d5e61acf6d863ddf4aba9ea3e6c6265c"
   solver-name = "gps-cdcl"
   solver-version = 1
