@@ -2,17 +2,14 @@ package interfaces
 
 import (
 	"context"
-	"encoding/binary"
 	"fmt"
 	"io"
-	"math"
 	"os"
 	"strconv"
 	"strings"
 
 	"cloud.google.com/go/bigtable"
 	"github.com/takashabe/btcli/api/application"
-	"github.com/takashabe/btcli/api/domain"
 )
 
 // Executor provides exec command handler
@@ -51,16 +48,13 @@ func (e *Executor) Do(s string) {
 			fmt.Fprintln(e.outStream, tbl)
 		}
 	case "lookup":
-		if len(args) != 3 {
+		if len(args) < 3 {
 			fmt.Fprintln(e.errStream, "Invalid args: lookup <table> <row>")
 			return
 		}
-		row, err := e.rowsInteractor.GetRow(ctx, args[1], args[2])
-		if err != nil {
-			fmt.Fprintf(e.errStream, "%v", err)
-			return
-		}
-		e.printRow(row)
+		table := args[1]
+		key := args[2]
+		e.lookupWithOptions(table, key, args[3:]...)
 	case "read":
 		if len(args) < 2 {
 			fmt.Fprintln(e.errStream, "Invalid args: read <table> [args ...]")
@@ -72,6 +66,53 @@ func (e *Executor) Do(s string) {
 		fmt.Fprintf(e.errStream, "Unknown command: %s\n", cmd)
 	}
 	return
+}
+
+func (e *Executor) lookupWithOptions(table, key string, args ...string) {
+	parsed := make(map[string]string)
+	for _, arg := range args {
+		i := strings.Index(arg, "=")
+		if i < 0 {
+			fmt.Fprintf(e.errStream, "Invalid args: %v\n", arg)
+			return
+		}
+		// TODO: Improve parsing args
+		k, v := arg[:i], arg[i+1:]
+		switch k {
+		default:
+			fmt.Fprintf(e.errStream, "Unknown arg: %v\n", arg)
+			return
+		case "version":
+			parsed[k] = v
+		case "decode":
+			parsed[k] = v
+		case "decode_columns":
+			parsed[k] = v
+		}
+	}
+
+	ro, err := readOption(parsed)
+	if err != nil {
+		fmt.Fprintf(e.errStream, "Invalid options: %v\n", err)
+		return
+	}
+
+	ctx := context.Background()
+	row, err := e.rowsInteractor.GetRow(ctx, table, key, ro...)
+	if err != nil {
+		fmt.Fprintf(e.errStream, "%v", err)
+		return
+	}
+
+	// decode options
+	p := &Printer{
+		outStream: e.outStream,
+		errStream: e.errStream,
+
+		decodeType:       parsed["decode"],
+		decodeColumnType: decodeColumnOption(parsed),
+	}
+	p.printRow(row)
 }
 
 func (e *Executor) readWithOptions(table string, args ...string) {

@@ -11,7 +11,7 @@ import (
 
 // Bigtable represent repository of the bigtable
 type Bigtable interface {
-	Get(ctx context.Context, table, key string) (*domain.Bigtable, error)
+	Get(ctx context.Context, table, key string, opts ...bigtable.ReadOption) (*domain.Bigtable, error)
 	GetRows(ctx context.Context, table string, rr bigtable.RowRange, opts ...bigtable.ReadOption) (*domain.Bigtable, error)
 	// TODO: Delete with prefix method.
 	GetRowsWithPrefix(ctx context.Context, table, key string, opts ...bigtable.ReadOption) (*domain.Bigtable, error)

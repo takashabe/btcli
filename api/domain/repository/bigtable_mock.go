@@ -36,34 +36,21 @@ func (m *MockBigtable) EXPECT() *MockBigtableMockRecorder {
 }
 
 // Get mocks base method
-func (m *MockBigtable) Get(ctx context.Context, table, key string) (*domain.Bigtable, error) {
-	ret := m.ctrl.Call(m, "Get", ctx, table, key)
+func (m *MockBigtable) Get(ctx context.Context, table, key string, opts ...bigtable.ReadOption) (*domain.Bigtable, error) {
+	varargs := []interface{}{ctx, table, key}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "Get", varargs...)
 	ret0, _ := ret[0].(*domain.Bigtable)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Get indicates an expected call of Get
-func (mr *MockBigtableMockRecorder) Get(ctx, table, key interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockBigtable)(nil).Get), ctx, table, key)
-}
-
-// GetRowsWithPrefix mocks base method
-func (m *MockBigtable) GetRowsWithPrefix(ctx context.Context, table, key string, opts ...bigtable.ReadOption) (*domain.Bigtable, error) {
-	varargs := []interface{}{ctx, table, key}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "GetRowsWithPrefix", varargs...)
-	ret0, _ := ret[0].(*domain.Bigtable)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetRowsWithPrefix indicates an expected call of GetRowsWithPrefix
-func (mr *MockBigtableMockRecorder) GetRowsWithPrefix(ctx, table, key interface{}, opts ...interface{}) *gomock.Call {
+func (mr *MockBigtableMockRecorder) Get(ctx, table, key interface{}, opts ...interface{}) *gomock.Call {
 	varargs := append([]interface{}{ctx, table, key}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRowsWithPrefix", reflect.TypeOf((*MockBigtable)(nil).GetRowsWithPrefix), varargs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockBigtable)(nil).Get), varargs...)
 }
 
 // GetRows mocks base method
@@ -82,6 +69,24 @@ func (m *MockBigtable) GetRows(ctx context.Context, table string, rr bigtable.Ro
 func (mr *MockBigtableMockRecorder) GetRows(ctx, table, rr interface{}, opts ...interface{}) *gomock.Call {
 	varargs := append([]interface{}{ctx, table, rr}, opts...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRows", reflect.TypeOf((*MockBigtable)(nil).GetRows), varargs...)
+}
+
+// GetRowsWithPrefix mocks base method
+func (m *MockBigtable) GetRowsWithPrefix(ctx context.Context, table, key string, opts ...bigtable.ReadOption) (*domain.Bigtable, error) {
+	varargs := []interface{}{ctx, table, key}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "GetRowsWithPrefix", varargs...)
+	ret0, _ := ret[0].(*domain.Bigtable)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetRowsWithPrefix indicates an expected call of GetRowsWithPrefix
+func (mr *MockBigtableMockRecorder) GetRowsWithPrefix(ctx, table, key interface{}, opts ...interface{}) *gomock.Call {
+	varargs := append([]interface{}{ctx, table, key}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRowsWithPrefix", reflect.TypeOf((*MockBigtable)(nil).GetRowsWithPrefix), varargs...)
 }
 
 // Count mocks base method

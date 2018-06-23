@@ -40,10 +40,10 @@ func getAdminClient(project, instance string) (*bigtable.AdminClient, error) {
 	return bigtable.NewAdminClient(context.Background(), project, instance)
 }
 
-func (b *bigtableRepository) Get(ctx context.Context, table, key string) (*domain.Bigtable, error) {
+func (b *bigtableRepository) Get(ctx context.Context, table, key string, opts ...bigtable.ReadOption) (*domain.Bigtable, error) {
 	tbl := b.client.Open(table)
 
-	row, err := tbl.ReadRow(ctx, key)
+	row, err := tbl.ReadRow(ctx, key, opts...)
 	if err != nil {
 		return nil, err
 	}

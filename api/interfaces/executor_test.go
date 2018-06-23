@@ -99,10 +99,10 @@ func TestDoExecutor(t *testing.T) {
 			},
 		},
 		{
-			"lookup table a",
+			"lookup table a version=1 decode=int decode_columns=row:string,404:float",
 			"----------------------------------------\na\n  d:row                                    @ 0001/01/01-00:00:00.000000\n    \"a1\"\n",
 			func(mock *repository.MockBigtable) {
-				mock.EXPECT().Get(gomock.Any(), "table", "a").Return(
+				mock.EXPECT().Get(gomock.Any(), "table", "a", bigtable.RowFilter(bigtable.LatestNFilter(1))).Return(
 					&domain.Bigtable{
 						Table: "table",
 						Rows: []*domain.Row{

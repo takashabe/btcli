@@ -21,8 +21,8 @@ func NewRowsInteractor(r repository.Bigtable) *RowsInteractor {
 }
 
 // GetRow returns a single row
-func (t *RowsInteractor) GetRow(ctx context.Context, table, key string) (*domain.Row, error) {
-	tbl, err := t.repository.Get(ctx, table, key)
+func (t *RowsInteractor) GetRow(ctx context.Context, table, key string, opts ...bigtable.ReadOption) (*domain.Row, error) {
+	tbl, err := t.repository.Get(ctx, table, key, opts...)
 	if err != nil {
 		return nil, err
 	}
