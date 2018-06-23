@@ -82,6 +82,7 @@ func (e *Executor) readWithOptions(table string, args ...string) {
 			fmt.Fprintf(os.Stderr, "Invalid args: %v\n", arg)
 			return
 		}
+		// TODO: Improve parsing args
 		key, val := arg[:i], arg[i+1:]
 		switch key {
 		default:
@@ -93,27 +94,40 @@ func (e *Executor) readWithOptions(table string, args ...string) {
 			parsed[key] = val
 		case "version":
 			parsed[key] = val
+		case "decode":
+			parsed[key] = val
+		case "decode_columns":
+			parsed[key] = val
 		}
 	}
 
 	rr, err := rowRange(parsed)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Invlaid range: %v\n", err)
+		fmt.Fprintf(e.errStream, "Invlaid range: %v\n", err)
 		return
 	}
 	ro, err := readOption(parsed)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Invalid options: %v\n", err)
+		fmt.Fprintf(e.errStream, "Invalid options: %v\n", err)
 		return
 	}
 
 	ctx := context.Background()
 	rows, err := e.rowsInteractor.GetRows(ctx, table, rr, ro...)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "%v", err)
+		fmt.Fprintf(e.errStream, "%v", err)
 		return
 	}
-	e.printRows(rows)
+
+	// decode options
+	p := &Printer{
+		outStream: e.outStream,
+		errStream: e.errStream,
+
+		decodeType:       parsed["decode"],
+		decodeColumnType: decodeColumnOption(parsed),
+	}
+	p.printRows(rows)
 }
 
 func rowRange(parsedArgs map[string]string) (bigtable.RowRange, error) {
@@ -150,43 +164,20 @@ func readOption(parsedArgs map[string]string) ([]bigtable.ReadOption, error) {
 	return opts, nil
 }
 
-func (e *Executor) printRows(rs []*domain.Row) {
-	for _, r := range rs {
-		e.printRow(r)
-	}
-}
-
-func (e *Executor) printRow(r *domain.Row) {
-	fmt.Fprintln(e.outStream, strings.Repeat("-", 40))
-	fmt.Fprintln(e.outStream, r.Key)
-
-	for _, c := range r.Columns {
-		fmt.Fprintf(e.outStream, "  %-40s @ %s\n", c.Qualifier, c.Version.Format("2006/01/02-15:04:05.000000"))
-		e.printValue(c.Value)
-	}
-}
-
-func (e *Executor) printValue(v []byte) {
-	if len(v) != 8 {
-		fmt.Fprintf(e.outStream, "    %q\n", v)
-		return
+func decodeColumnOption(parsedArgs map[string]string) map[string]string {
+	arg := parsedArgs["decode_columns"]
+	if len(arg) == 0 {
+		return map[string]string{}
 	}
 
-	// guess: float decides by high 2-bit flag
-	// https://en.wikipedia.org/wiki/Double-precision_floating-point_format
-	switch v[0] << 1 >> 7 & 1 {
-	case 1:
-		fmt.Fprintf(e.outStream, "    %f\n", e.byte2Float(v))
-	case 0:
-		fmt.Fprintf(e.outStream, "    %d\n", e.byte2Int(v))
+	ds := strings.Split(arg, ",")
+	ret := map[string]string{}
+	for _, d := range ds {
+		ct := strings.SplitN(d, ":", 2)
+		if len(ct) != 2 {
+			continue
+		}
+		ret[ct[0]] = ct[1]
 	}
-}
-
-func (*Executor) byte2Int(b []byte) int64 {
-	return (int64)(binary.BigEndian.Uint64(b))
-}
-
-func (*Executor) byte2Float(b []byte) float64 {
-	bits := binary.BigEndian.Uint64(b)
-	return math.Float64frombits(bits)
+	return ret
 }
