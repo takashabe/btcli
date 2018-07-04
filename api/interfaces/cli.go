@@ -1,6 +1,7 @@
 package interfaces
 
 import (
+	"flag"
 	"fmt"
 	"io"
 	"os"
@@ -43,11 +44,16 @@ func (c *CLI) Run(args []string) int {
 }
 
 func (c *CLI) loadConfig(args []string) (*config.Config, error) {
-	// TODO: Load config actually
-	return &config.Config{
-		Project:  "test-project",
-		Instance: "test-instance",
-	}, nil
+	conf, err := config.Load()
+	if err != nil {
+		return nil, err
+	}
+
+	// TODO: Implements usage
+	// flag.Usage = func() {}
+	flag.Parse()
+
+	return conf, nil
 }
 
 func (c *CLI) preparePrompt(conf *config.Config) *prompt.Prompt {

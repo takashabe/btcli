@@ -18,7 +18,7 @@ import (
 	"golang.org/x/oauth2"
 )
 
-var config *Config
+var config = &Config{}
 
 // Config represents a configuration.
 type Config struct {
@@ -28,7 +28,7 @@ type Config struct {
 	TokenSource oauth2.TokenSource
 }
 
-// registerFlags registers a set of standard flags for this config.
+// RegisterFlags registers a set of standard flags for this config.
 func (c *Config) registerFlags() {
 	flag.StringVar(&c.Project, "project", c.Project, "project ID, if unset uses gcloud configured project")
 	flag.StringVar(&c.Instance, "instance", c.Instance, "Cloud Bigtable instance")
@@ -65,6 +65,12 @@ func Load() (*Config, error) {
 			config.Creds = val
 		}
 	}
+
+	config.registerFlags()
+	if err := config.setFromGcloud(); err != nil {
+		return nil, err
+	}
+
 	return config, s.Err()
 }
 
