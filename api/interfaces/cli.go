@@ -7,8 +7,8 @@ import (
 	"os"
 
 	prompt "github.com/c-bata/go-prompt"
-	"github.com/pkg/errors"
 	"github.com/takashabe/btcli/api/application"
+	"github.com/takashabe/btcli/api/config"
 	"github.com/takashabe/btcli/api/infrastructure/bigtable"
 )
 
@@ -22,17 +22,6 @@ const (
 	ExitCodeInvalidArgsError
 )
 
-const (
-	defaultProject  = "test-project"
-	defaultInstance = "test-instance"
-)
-
-// TODO: need require/optional params
-type param struct {
-	project  string
-	instance string
-}
-
 // CLI is the command line interface object
 type CLI struct {
 	OutStream io.Writer
@@ -41,36 +30,34 @@ type CLI struct {
 
 // Run invokes the CLI with the given arguments
 func (c *CLI) Run(args []string) int {
-	param := &param{}
-	err := c.parseArgs(args[1:], param)
+	conf, err := c.loadConfig(args[1:])
 	if err != nil {
 		fmt.Fprintf(c.ErrStream, "args parse error: %v\n", err)
 		return ExitCodeParseError
 	}
 
-	p := c.preparePrompt(param)
+	p := c.preparePrompt(conf)
 	p.Run()
 
 	// TODO: This is dead code. Invoke os.Exit by the prompt.Run
 	return ExitCodeOK
 }
 
-func (c *CLI) parseArgs(args []string, p *param) error {
-	flags := flag.NewFlagSet("param", flag.ContinueOnError)
-	flags.SetOutput(c.ErrStream)
-
-	flags.StringVar(&p.project, "project", defaultProject, `project ID, if unset uses gcloud configured project (default "test-project")`)
-	flags.StringVar(&p.instance, "instance", defaultInstance, `Cloud Bigtable instance (default "test-instance")`)
-
-	err := flags.Parse(args)
+func (c *CLI) loadConfig(args []string) (*config.Config, error) {
+	conf, err := config.Load()
 	if err != nil {
-		return errors.Wrapf(err, "failed to parsed args")
+		return nil, err
 	}
-	return nil
+
+	// TODO: Implements usage
+	// flag.Usage = func() {}
+	flag.Parse()
+
+	return conf, nil
 }
 
-func (c *CLI) preparePrompt(p *param) *prompt.Prompt {
-	repository, err := bigtable.NewBigtableRepository(p.project, p.instance)
+func (c *CLI) preparePrompt(conf *config.Config) *prompt.Prompt {
+	repository, err := bigtable.NewBigtableRepository(conf.Project, conf.Instance)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to initialized bigtable repository:%v", err)
 	}
