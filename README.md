@@ -16,19 +16,29 @@ CLI client for the Bigtable with auto-completion.
 
 ## Support commands
 
-- [ ] count                     Count rows in a table
-- [ ] createfamily              Create a column family
-- [ ] createtable               Create a table
-- [ ] deletecolumn              Delete all cells in a column
-- [ ] deletefamily              Delete a column family
-- [ ] deleterow                 Delete a row
-- [ ] deletetable               Delete a table
-- [x] lookup                    Read from a single row
-- [x] ls                        List tables and column families
-- [ ] read                      Read rows
+### Read commands
+
+- [ ] count
+- [x] lookup
+- [x] ls
+- [ ] read
     - [x] count
     - [x] prefix
     - [x] version
-- [ ] set                       Set value of a cell
-- [ ] setgcpolicy               Set the GC policy for a column family
-- [ ] help                      Print help text
+    - [ ] start
+    - [ ] end
+
+### Write commands
+
+- [ ] createfamily
+- [ ] createtable
+- [ ] deletecolumn
+- [ ] deletefamily
+- [ ] deleterow
+- [ ] deletetable
+- [ ] set
+- [ ] setgcpolicy
+
+### Others
+
+- [ ] help
