@@ -18,7 +18,7 @@ CLI client for the Bigtable with auto-completion.
 
 ### Read commands
 
-- [ ] count
+- [x] count
 - [x] lookup
 - [x] ls
 - [ ] read
