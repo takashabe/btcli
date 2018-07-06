@@ -37,3 +37,8 @@ func (t *RowsInteractor) GetRows(ctx context.Context, table string, rr bigtable.
 	}
 	return tbl.Rows, nil
 }
+
+// GetRowCount returns number of the table
+func (t *RowsInteractor) GetRowCount(ctx context.Context, table string) (int, error) {
+	return t.repository.Count(ctx, table)
+}

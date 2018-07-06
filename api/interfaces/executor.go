@@ -43,10 +43,23 @@ func (e *Executor) Do(s string) {
 		tables, err := e.tableInteractor.GetTables(ctx)
 		if err != nil {
 			fmt.Fprintf(e.errStream, "%v", err)
+			return
 		}
 		for _, tbl := range tables {
 			fmt.Fprintln(e.outStream, tbl)
 		}
+	case "count":
+		if len(args) < 2 {
+			fmt.Fprintln(e.errStream, "Invalid args: count <table>")
+			return
+		}
+		table := args[1]
+		cnt, err := e.rowsInteractor.GetRowCount(ctx, table)
+		if err != nil {
+			fmt.Fprintf(e.errStream, "%v", err)
+			return
+		}
+		fmt.Fprintln(e.outStream, cnt)
 	case "lookup":
 		if len(args) < 3 {
 			fmt.Fprintln(e.errStream, "Invalid args: lookup <table> <row>")

@@ -84,7 +84,7 @@ func TestReadOption(t *testing.T) {
 	}
 }
 
-func TestDoExecutor(t *testing.T) {
+func TestDoReadRowExecutor(t *testing.T) {
 	tm, _ := time.Parse("2006-01-02 15:04:05", "2018-01-01 00:00:00")
 	cases := []struct {
 		input   string
@@ -160,6 +160,42 @@ func TestDoExecutor(t *testing.T) {
 			errStream:       &buf,
 			tableInteractor: application.NewTableInteractor(mockBtRepo),
 			rowsInteractor:  application.NewRowsInteractor(mockBtRepo),
+		}
+
+		executor.Do(c.input)
+		assert.Equal(t, c.expect, buf.String())
+	}
+}
+
+func TestDoCountExecutor(t *testing.T) {
+	cases := []struct {
+		input   string
+		expect  string
+		prepare func(*repository.MockBigtable)
+	}{
+		{
+			"count table",
+			"1\n",
+			func(mock *repository.MockBigtable) {
+				mock.EXPECT().Count(gomock.Any(), "table").Return(1, nil)
+			},
+		},
+	}
+	for _, c := range cases {
+		ctrl := gomock.NewController(t)
+		mockBtRepo := repository.NewMockBigtable(ctrl)
+		defer ctrl.Finish()
+
+		c.prepare(mockBtRepo)
+
+		var buf bytes.Buffer
+		// TODO: debug
+		// var r io.Reader = &buf
+		// r = io.TeeReader(r, os.Stdout)
+		executor := Executor{
+			outStream:      &buf,
+			errStream:      &buf,
+			rowsInteractor: application.NewRowsInteractor(mockBtRepo),
 		}
 
 		executor.Do(c.input)
