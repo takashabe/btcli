@@ -72,11 +72,6 @@ func (b *bigtableRepository) GetRows(ctx context.Context, table string, rr bigta
 	}, nil
 }
 
-func (b *bigtableRepository) GetRowsWithPrefix(ctx context.Context, table, key string, opts ...bigtable.ReadOption) (*domain.Bigtable, error) {
-	rr := bigtable.PrefixRange(key)
-	return b.GetRows(ctx, table, rr, opts...)
-}
-
 func (b *bigtableRepository) Count(ctx context.Context, table string) (int, error) {
 	tbl := b.client.Open(table)
 

@@ -11,6 +11,7 @@ import (
 var commands = []prompt.Suggest{
 	// cbt commands
 	{Text: "ls", Description: "List tables"},
+	{Text: "count", Description: "Count table rows"},
 	{Text: "lookup", Description: "Read from a single row"},
 	{Text: "read", Description: "Read from a multi rows"},
 
@@ -43,7 +44,7 @@ func (c *Completer) completeWithArguments(args ...string) []prompt.Suggest {
 
 	second := args[1]
 	switch cmd {
-	case "lookup", "read":
+	case "lookup", "read", "count":
 		if len(args) == 2 {
 			return prompt.FilterHasPrefix(c.getTableSuggestions(), second, true)
 		}
