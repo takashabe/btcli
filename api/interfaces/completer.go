@@ -52,14 +52,23 @@ func (c *Completer) completeWithArguments(args ...string) []prompt.Suggest {
 		if len(args) == 2 {
 			return prompt.FilterHasPrefix(c.getTableSuggestions(), second, true)
 		}
-		// TODO: implements version subcommand
+
+		subcommands := []prompt.Suggest{
+			{Text: "version"},
+		}
+		if len(args) > 3 {
+			distinctCommands := filterDuplicateCommands(args, subcommands)
+			latestCmd := args[len(args)-1]
+			return prompt.FilterHasPrefix(distinctCommands, latestCmd, true)
+		}
 	case "read":
+		if len(args) == 2 {
+			return prompt.FilterHasPrefix(c.getTableSuggestions(), second, true)
+		}
+
 		subcommands := []prompt.Suggest{
 			{Text: "prefix"},
 			{Text: "version"},
-		}
-		if len(args) == 2 {
-			return prompt.FilterHasPrefix(c.getTableSuggestions(), second, true)
 		}
 		if len(args) > 2 {
 			distinctCommands := filterDuplicateCommands(args, subcommands)
