@@ -224,6 +224,9 @@ func readOption(parsedArgs map[string]string) ([]bigtable.ReadOption, error) {
 		}
 		opts = append(opts, bigtable.RowFilter(bigtable.LatestNFilter(int(n))))
 	}
+	if family := parsedArgs["family"]; family != "" {
+		opts = append(opts, bigtable.RowFilter(bigtable.FamilyFilter(fmt.Sprintf("^%s$", family))))
+	}
 
 	// TODO: Add read options. refs hbase-shell
 
