@@ -142,6 +142,8 @@ func (e *Executor) readWithOptions(table string, args ...string) {
 		default:
 			fmt.Fprintf(os.Stderr, "Unknown arg: %v\n", arg)
 			return
+		case "start", "end":
+			parsed[key] = val
 		case "prefix":
 			parsed[key] = val
 		case "count":
@@ -153,6 +155,11 @@ func (e *Executor) readWithOptions(table string, args ...string) {
 		case "decode_columns":
 			parsed[key] = val
 		}
+	}
+
+	if (parsed["start"] != "" || parsed["end"] != "") && parsed["prefix"] != "" {
+		fmt.Fprintf(e.errStream, `"start"/"end" may not be mixed with "prefix"`)
+		return
 	}
 
 	rr, err := rowRange(parsed)
@@ -186,6 +193,11 @@ func (e *Executor) readWithOptions(table string, args ...string) {
 
 func rowRange(parsedArgs map[string]string) (bigtable.RowRange, error) {
 	var rr bigtable.RowRange
+	if start, end := parsedArgs["start"], parsedArgs["end"]; end != "" {
+		rr = bigtable.NewRange(start, end)
+	} else if start != "" {
+		rr = bigtable.InfiniteRange(start)
+	}
 	if prefix := parsedArgs["prefix"]; prefix != "" {
 		rr = bigtable.PrefixRange(prefix)
 	}

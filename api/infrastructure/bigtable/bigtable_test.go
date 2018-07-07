@@ -106,11 +106,22 @@ func TestGetRows(t *testing.T) {
 		},
 		{
 			"users",
-			bigtable.PrefixRange("4"),
+			bigtable.NewRange("3", ""),
 			[]bigtable.ReadOption{
 				bigtable.RowFilter(bigtable.LatestNFilter(1)),
 			},
 			[]*domain.Row{
+				&domain.Row{
+					Key: "3",
+					Columns: []*domain.Column{
+						&domain.Column{
+							Family:    "d",
+							Qualifier: "d:row",
+							Value:     []byte("sayaka"),
+							Version:   tm,
+						},
+					},
+				},
 				&domain.Row{
 					Key: "4",
 					Columns: []*domain.Column{

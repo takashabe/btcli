@@ -67,6 +67,8 @@ func (c *Completer) completeWithArguments(args ...string) []prompt.Suggest {
 		}
 
 		subcommands := []prompt.Suggest{
+			{Text: "start"},
+			{Text: "end"},
 			{Text: "prefix"},
 			{Text: "version"},
 		}
