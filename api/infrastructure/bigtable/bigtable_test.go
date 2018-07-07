@@ -102,6 +102,17 @@ func TestGetRows(t *testing.T) {
 						},
 					},
 				},
+				&domain.Row{
+					Key: "10",
+					Columns: []*domain.Column{
+						&domain.Column{
+							Family:    "d'",
+							Qualifier: "d':row",
+							Value:     []byte("madoka"),
+							Version:   tm,
+						},
+					},
+				},
 			},
 		},
 		{
@@ -179,7 +190,7 @@ func TestCount(t *testing.T) {
 		table  string
 		expect int
 	}{
-		{"users", 4},
+		{"users", 5},
 	}
 	for _, c := range cases {
 		r, err := NewBigtableRepository("test-project", "test-instance")
