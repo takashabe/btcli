@@ -22,3 +22,9 @@ column_families:
         version: 2018-01-01 01:00:00 +00:00
         rows:
           row: anko
+  - family: d'
+    columns:
+      - key: 10
+        version: 2018-01-01 00:00:00 +00:00
+        rows:
+          row: madoka

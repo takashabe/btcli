@@ -95,11 +95,9 @@ func (e *Executor) lookupWithOptions(table, key string, args ...string) {
 		default:
 			fmt.Fprintf(e.errStream, "Unknown arg: %v\n", arg)
 			return
+		case "decode", "decode_columns":
+			parsed[k] = v
 		case "version":
-			parsed[k] = v
-		case "decode":
-			parsed[k] = v
-		case "decode_columns":
 			parsed[k] = v
 		}
 	}
@@ -142,17 +140,9 @@ func (e *Executor) readWithOptions(table string, args ...string) {
 		default:
 			fmt.Fprintf(os.Stderr, "Unknown arg: %v\n", arg)
 			return
-		case "start", "end":
+		case "decode", "decode_columns":
 			parsed[key] = val
-		case "prefix":
-			parsed[key] = val
-		case "count":
-			parsed[key] = val
-		case "version":
-			parsed[key] = val
-		case "decode":
-			parsed[key] = val
-		case "decode_columns":
+		case "count", "start", "end", "prefix", "version", "family":
 			parsed[key] = val
 		}
 	}
@@ -223,6 +213,9 @@ func readOption(parsedArgs map[string]string) ([]bigtable.ReadOption, error) {
 			return nil, err
 		}
 		opts = append(opts, bigtable.RowFilter(bigtable.LatestNFilter(int(n))))
+	}
+	if family := parsedArgs["family"]; family != "" {
+		opts = append(opts, bigtable.RowFilter(bigtable.FamilyFilter(fmt.Sprintf("^%s$", family))))
 	}
 
 	// TODO: Add read options. refs hbase-shell

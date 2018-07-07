@@ -2,8 +2,6 @@ package interfaces
 
 import (
 	"bytes"
-	"fmt"
-	"reflect"
 	"testing"
 	"time"
 
@@ -51,36 +49,32 @@ func TestReadOption(t *testing.T) {
 				"count": "1",
 			},
 			[]bigtable.ReadOption{
-				bigtable.LimitRows(0),
+				bigtable.LimitRows(1),
 			},
 		},
 		{
 			map[string]string{
 				"count": "1",
-				"regex": "1",
+				"regex": "a",
 			},
 			[]bigtable.ReadOption{
-				bigtable.LimitRows(0),
-				bigtable.RowFilter(bigtable.RowKeyFilter("")),
+				bigtable.LimitRows(1),
+				bigtable.RowFilter(bigtable.RowKeyFilter("a")),
+			},
+		},
+		{
+			map[string]string{
+				"family": "d",
+			},
+			[]bigtable.ReadOption{
+				bigtable.RowFilter(bigtable.FamilyFilter("^d$")),
 			},
 		},
 	}
 	for _, c := range cases {
 		actual, err := readOption(c.input)
 		assert.NoError(t, err)
-
-		for _, e := range c.expects {
-			contain := false
-			expectType := reflect.TypeOf(e)
-			for _, a := range actual {
-				if expectType == reflect.TypeOf(a) {
-					contain = true
-				}
-			}
-			if !contain {
-				assert.Fail(t, fmt.Sprintf("Expect contan type '%v'", expectType))
-			}
-		}
+		assert.Equal(t, c.expects, actual)
 	}
 }
 
