@@ -20,15 +20,15 @@ CLI client for the Bigtable with auto-completion.
 
 - [x] ls
 - [x] count
-- [ ] lookup
+- [x] lookup
     - [x] version
-    - [ ] family
-- [ ] read
+    - [x] family
+- [x] read
     - [x] start
     - [x] end
     - [x] prefix
     - [x] version
-    - [ ] family
+    - [x] family
 
 ### Write commands
 
