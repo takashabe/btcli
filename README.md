@@ -22,7 +22,6 @@ CLI client for the Bigtable with auto-completion.
 - [x] lookup
 - [x] ls
 - [ ] read
-    - [x] count
     - [x] prefix
     - [x] version
     - [ ] start
