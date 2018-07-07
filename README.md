@@ -18,14 +18,17 @@ CLI client for the Bigtable with auto-completion.
 
 ### Read commands
 
-- [x] count
-- [x] lookup
 - [x] ls
+- [x] count
+- [ ] lookup
+    - [x] version
+    - [ ] family
 - [ ] read
+    - [x] start
+    - [x] end
     - [x] prefix
     - [x] version
-    - [ ] start
-    - [ ] end
+    - [ ] family
 
 ### Write commands
 

@@ -31,7 +31,7 @@ func TestRowRange(t *testing.T) {
 				"start": "1",
 				"end":   "2",
 			},
-			bigtable.NewRange("", ""),
+			bigtable.NewRange("1", "2"),
 		},
 	}
 	for _, c := range cases {
