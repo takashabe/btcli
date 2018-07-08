@@ -6,7 +6,7 @@ CLI client for the Bigtable with auto-completion.
 
 btcli is the cloud bigtable client tool.  Connect to your bigtable instances and any read items with auto-completion.
 
-__write commands are not implemented yet__
+_write commands are not implemented yet_
 
 #### Compare to cbt
 
@@ -31,7 +31,7 @@ go get github.com/takashabe/btcli
 btcli -project <GCP_PROJECT_NAME> -instance <BIGTABLE_INSTANCE_ID> -creds <GCP_CREDENTIAL_FILE>
 ```
 
-__-creds e.g. `~/.config/gcloud/application_default_credentials.json`__
+_-creds e.g. `~/.config/gcloud/application_default_credentials.json`_
 
 #### Interactive shell
 
