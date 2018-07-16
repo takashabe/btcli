@@ -11,20 +11,21 @@ type Command struct {
 	Name        string
 	Description string
 	Usage       string
-	Runner      func(context.Context, ...string)
+	Runner      func(context.Context, *Executor, ...string)
 }
 
 var commands = []Command{
-	// cbt commands
 	{
 		Name:        "ls",
 		Description: "List tables",
 		Usage:       "ls",
+		Runner:      doLS,
 	},
 	{
 		Name:        "count",
 		Description: "Count table rows",
 		Usage:       "count <table>",
+		Runner:      doCount,
 	},
 	{
 		Name:        "lookup",
@@ -32,6 +33,7 @@ var commands = []Command{
 		Usage: `lookup <table> <row> [family=<column_family>] [version=<n>]
 		family    Read only columns family with <columns_family>
 		version   Read only latest <n> columns`,
+		Runner: doLookup,
 	},
 	{
 		Name:        "read",
@@ -42,6 +44,7 @@ var commands = []Command{
 		prefix    Read rows with this prefix
 		family    Read only columns family with <columns_family>
 		version   Read only latest <n> columns`,
+		Runner: doRead,
 	},
 
 	// btcli commands
@@ -49,11 +52,13 @@ var commands = []Command{
 		Name:        "exit",
 		Description: "Exit this prompt",
 		Usage:       "Exit this prompt",
+		Runner:      doExit,
 	},
 	{
 		Name:        "quit",
 		Description: "Exit this prompt",
 		Usage:       "Exit this prompt",
+		Runner:      doExit,
 	},
 }
 

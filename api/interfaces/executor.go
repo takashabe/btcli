@@ -28,57 +28,66 @@ func (e *Executor) Do(s string) {
 		return
 	}
 
-	if s == "quit" || s == "exit" {
-		fmt.Fprintln(e.outStream, "Bye!")
-		os.Exit(0)
-	}
-
 	ctx := context.Background()
 	args := strings.Split(s, " ")
 	cmd := args[0]
 
-	// TODO: extract function per commands
-	switch cmd {
-	case "ls":
-		tables, err := e.tableInteractor.GetTables(ctx)
-		if err != nil {
-			fmt.Fprintf(e.errStream, "%v", err)
+	for _, c := range commands {
+		if cmd == c.Name {
+			c.Runner(ctx, e, args...)
 			return
 		}
-		for _, tbl := range tables {
-			fmt.Fprintln(e.outStream, tbl)
-		}
-	case "count":
-		if len(args) < 2 {
-			fmt.Fprintln(e.errStream, "Invalid args: count <table>")
-			return
-		}
-		table := args[1]
-		cnt, err := e.rowsInteractor.GetRowCount(ctx, table)
-		if err != nil {
-			fmt.Fprintf(e.errStream, "%v", err)
-			return
-		}
-		fmt.Fprintln(e.outStream, cnt)
-	case "lookup":
-		if len(args) < 3 {
-			fmt.Fprintln(e.errStream, "Invalid args: lookup <table> <row>")
-			return
-		}
-		table := args[1]
-		key := args[2]
-		e.lookupWithOptions(table, key, args[3:]...)
-	case "read":
-		if len(args) < 2 {
-			fmt.Fprintln(e.errStream, "Invalid args: read <table> [args ...]")
-			return
-		}
-		table := args[1]
-		e.readWithOptions(table, args[2:]...)
-	default:
-		fmt.Fprintf(e.errStream, "Unknown command: %s\n", cmd)
 	}
-	return
+	fmt.Fprintf(e.errStream, "Unknown command: %s\n", cmd)
+}
+
+func doExit(ctx context.Context, e *Executor, args ...string) {
+	fmt.Fprintln(e.outStream, "Bye!")
+	os.Exit(0)
+}
+
+func doLS(ctx context.Context, e *Executor, args ...string) {
+	tables, err := e.tableInteractor.GetTables(ctx)
+	if err != nil {
+		fmt.Fprintf(e.errStream, "%v", err)
+		return
+	}
+	for _, tbl := range tables {
+		fmt.Fprintln(e.outStream, tbl)
+	}
+}
+
+func doCount(ctx context.Context, e *Executor, args ...string) {
+	if len(args) < 2 {
+		fmt.Fprintln(e.errStream, "Invalid args: count <table>")
+		return
+	}
+	table := args[1]
+	cnt, err := e.rowsInteractor.GetRowCount(ctx, table)
+	if err != nil {
+		fmt.Fprintf(e.errStream, "%v", err)
+		return
+	}
+	fmt.Fprintln(e.outStream, cnt)
+}
+
+func doLookup(ctx context.Context, e *Executor, args ...string) {
+	if len(args) < 3 {
+		fmt.Fprintln(e.errStream, "Invalid args: lookup <table> <row>")
+		return
+	}
+	table := args[1]
+	key := args[2]
+	e.lookupWithOptions(table, key, args[3:]...)
+}
+
+func doRead(ctx context.Context, e *Executor, args ...string) {
+	if len(args) < 2 {
+		fmt.Fprintln(e.errStream, "Invalid args: read <table> [args ...]")
+		return
+	}
+	table := args[1]
+	e.readWithOptions(table, args[2:]...)
 }
 
 func (e *Executor) lookupWithOptions(table, key string, args ...string) {
