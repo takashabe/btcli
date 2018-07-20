@@ -31,19 +31,19 @@ var commands = []Command{
 		Name:        "lookup",
 		Description: "Read from a single row",
 		Usage: `lookup <table> <row> [family=<column_family>] [version=<n>]
-		family    Read only columns family with <columns_family>
-		version   Read only latest <n> columns`,
+	family    Read only columns family with <columns_family>
+	version   Read only latest <n> columns`,
 		Runner: doLookup,
 	},
 	{
 		Name:        "read",
 		Description: "Read from a multi rows",
 		Usage: `read <table> [start=<row>] [end=<row>] [prefix=<prefix>] [family=<column_family>] [version=<n>]
-		start     Start reading at this row
-		end       Stop reading before this row
-		prefix    Read rows with this prefix
-		family    Read only columns family with <columns_family>
-		version   Read only latest <n> columns`,
+	start     Start reading at this row
+	end       Stop reading before this row
+	prefix    Read rows with this prefix
+	family    Read only columns family with <columns_family>
+	version   Read only latest <n> columns`,
 		Runner: doRead,
 	},
 
