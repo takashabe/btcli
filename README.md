@@ -103,4 +103,4 @@ read <table> [start=<row>] [end=<row>] [prefix=<prefix>] [family=<column_family>
 
 ### Others
 
-- [ ] help
+- [x] help
