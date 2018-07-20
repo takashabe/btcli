@@ -30,7 +30,7 @@ type CLI struct {
 
 // Run invokes the CLI with the given arguments
 func (c *CLI) Run(args []string) int {
-	conf, err := c.loadConfig(args[1:])
+	conf, err := c.loadConfig()
 	if err != nil {
 		fmt.Fprintf(c.ErrStream, "args parse error: %v\n", err)
 		return ExitCodeParseError
@@ -43,17 +43,24 @@ func (c *CLI) Run(args []string) int {
 	return ExitCodeOK
 }
 
-func (c *CLI) loadConfig(args []string) (*config.Config, error) {
+func (c *CLI) loadConfig() (*config.Config, error) {
 	conf, err := config.Load()
 	if err != nil {
 		return nil, err
 	}
 
-	// TODO: Implements usage
-	// flag.Usage = func() {}
+	flag.Usage = func() {
+		usage(c.OutStream)
+	}
 	flag.Parse()
 
 	return conf, nil
+}
+
+func usage(w io.Writer) {
+	fmt.Fprintf(w, "Usage: %s [flags] <command> ...\n", os.Args[0])
+	flag.CommandLine.SetOutput(w)
+	flag.CommandLine.PrintDefaults()
 }
 
 func (c *CLI) preparePrompt(conf *config.Config) *prompt.Prompt {

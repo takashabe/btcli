@@ -16,6 +16,12 @@ type Command struct {
 
 var commands = []Command{
 	{
+		Name:        "help",
+		Description: "help command",
+		Usage:       "help [<command>]",
+		Runner:      doHelp,
+	},
+	{
 		Name:        "ls",
 		Description: "List tables",
 		Usage:       "ls",

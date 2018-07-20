@@ -12,6 +12,19 @@ import (
 	"github.com/takashabe/btcli/api/application"
 )
 
+// Avoid to circular dependencies
+var (
+	doHelpFn func(context.Context, *Executor, ...string)
+)
+
+func doHelp(ctx context.Context, e *Executor, args ...string) {
+	doHelpFn(ctx, e, args...)
+}
+
+func init() {
+	doHelpFn = lazyDoHelp
+}
+
 // Executor provides exec command handler
 type Executor struct {
 	outStream io.Writer
@@ -34,6 +47,7 @@ func (e *Executor) Do(s string) {
 
 	for _, c := range commands {
 		if cmd == c.Name {
+			// TODO: extract args[0]
 			c.Runner(ctx, e, args...)
 			return
 		}
@@ -44,6 +58,21 @@ func (e *Executor) Do(s string) {
 func doExit(ctx context.Context, e *Executor, args ...string) {
 	fmt.Fprintln(e.outStream, "Bye!")
 	os.Exit(0)
+}
+
+func lazyDoHelp(ctx context.Context, e *Executor, args ...string) {
+	if len(args) == 1 {
+		usage(e.outStream)
+		return
+	}
+	cmd := args[1]
+	for _, c := range commands {
+		if c.Name == cmd {
+			fmt.Fprintln(e.outStream, c.Usage)
+			return
+		}
+	}
+	fmt.Fprintf(e.errStream, "Unknown command: %s\n", cmd)
 }
 
 func doLS(ctx context.Context, e *Executor, args ...string) {
