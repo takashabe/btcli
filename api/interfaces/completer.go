@@ -8,18 +8,6 @@ import (
 	"github.com/takashabe/btcli/api/application"
 )
 
-var commands = []prompt.Suggest{
-	// cbt commands
-	{Text: "ls", Description: "List tables"},
-	{Text: "count", Description: "Count table rows"},
-	{Text: "lookup", Description: "Read from a single row"},
-	{Text: "read", Description: "Read from a multi rows"},
-
-	// btcli commands
-	{Text: "exit", Description: "Exit this prompt"},
-	{Text: "quit", Description: "Exit this prompt"},
-}
-
 // Completer provides completion command handler
 type Completer struct {
 	tableInteractor *application.TableInteractor
@@ -37,7 +25,7 @@ func (c *Completer) Do(d prompt.Document) []prompt.Suggest {
 
 func (c *Completer) completeWithArguments(args ...string) []prompt.Suggest {
 	if len(args) <= 1 {
-		return prompt.FilterHasPrefix(commands, args[0], true)
+		return prompt.FilterHasPrefix(getAllSuggests(), args[0], true)
 	}
 
 	cmd := args[0]

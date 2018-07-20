@@ -8,7 +8,7 @@ btcli is the cloud bigtable client tool.  Connect to your bigtable instances and
 
 _write commands are not implemented yet_
 
-#### Compare to cbt
+### Compare to cbt
 
 `cbt` is an official bigtable client tool
 
@@ -25,7 +25,7 @@ go get github.com/takashabe/btcli
 
 ## Usage
 
-#### Connect to bigtable
+### Connect to bigtable
 
 ```
 btcli -project <GCP_PROJECT_NAME> -instance <BIGTABLE_INSTANCE_ID> -creds <GCP_CREDENTIAL_FILE>
@@ -33,13 +33,45 @@ btcli -project <GCP_PROJECT_NAME> -instance <BIGTABLE_INSTANCE_ID> -creds <GCP_C
 
 _-creds e.g. `~/.config/gcloud/application_default_credentials.json`_
 
-#### Interactive shell
+### Interactive shell
+
+- ls
+
+List tables and column families
 
 ```
-ls
-count <TABLE_NAME>
-lookup <TABLE_NAME> <KEY> [options...]
-read <TABLE_NAME> [options...]
+ls          List tables
+```
+
+- count
+
+Count rows in a table
+
+```
+count <table>
+```
+
+- lookup
+
+Read from a single row
+
+```
+lookup <table> <row> [family=<column_family>] [version=<n>]
+  family    Read only columns family with <columns_family>
+  version   Read only latest <n> columns
+```
+
+- read
+
+Read rows
+
+```
+read <table> [start=<row>] [end=<row>] [prefix=<prefix>] [family=<column_family>] [version=<n>]
+  start     Start reading at this row
+  end       Stop reading before this row
+  prefix    Read rows with this prefix
+  family    Read only columns family with <columns_family>
+  version   Read only latest <n> columns
 ```
 
 ## Support commands
@@ -71,4 +103,4 @@ read <TABLE_NAME> [options...]
 
 ### Others
 
-- [ ] help
+- [x] help
