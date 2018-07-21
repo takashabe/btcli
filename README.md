@@ -1,3 +1,7 @@
+[![GoDoc](https://godoc.org/github.com/takashabe/btcli?status.svg)](https://godoc.org/github.com/takashabe/btcli)
+[![CircleCI](https://circleci.com/gh/takashabe/btcli.svg?style=shield)](https://circleci.com/gh/takashabe/btcli)
+[![Go Report Card](https://goreportcard.com/badge/github.com/takashabe/btcli)](https://goreportcard.com/report/github.com/takashabe/btcli)
+
 # btcli
 
 CLI client for the Bigtable with auto-completion.
