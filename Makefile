@@ -1,12 +1,16 @@
-SUBPACKAGES := $(shell go list ./...)
-APP_MAIN    := cmd/btcli/btcli.go
+SUBPACKAGES       := $(shell go list ./...)
+APP_MAIN          := cmd/btcli/btcli.go
+BRANCH_NAME       := $(shell git symbolic-ref --short HEAD)
+CURRENT_TIMESTAMP := $(shell date +%Y-%m-%d-%H%M%S)
+VERSION           := $(CURRENT_TIMESTAMP).$(subst /,_,$(BRANCH_NAME))
+LDFLAGS           := -ldflags='-s -w -X "main.Version=$(VERSION)"'
 
 .DEFAULT_GOAL := help
 
 ##### Operation
 
 build: $(APP_MAIN) ## Build application
-	go build -a $(APP_MAIN)
+	go build -a $(LDFLAGS) $(APP_MAIN)
 
 run: $(APP_MAIN) ## Run application
 	go run $(APP_MAIN)

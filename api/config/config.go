@@ -6,8 +6,8 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"io"
 	"io/ioutil"
-	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -26,6 +26,8 @@ type Config struct {
 	Instance    string
 	Creds       string
 	TokenSource oauth2.TokenSource
+
+	ErrStream io.Writer
 }
 
 // RegisterFlags registers a set of standard flags for this config.
@@ -35,43 +37,50 @@ func (c *Config) registerFlags() {
 	flag.StringVar(&c.Creds, "creds", c.Creds, "if set, use application credentials in this file")
 }
 
+func NewConfig(writer io.Writer) *Config {
+	return &Config{
+		ErrStream: writer,
+	}
+}
+
 // Load returns initialized configuration
-func Load() (*Config, error) {
+func (c *Config) Load() error {
 	filename := filepath.Join(os.Getenv("HOME"), ".cbtrc")
 	data, err := ioutil.ReadFile(filename)
 	if err != nil {
 		// silent fail if the file isn't there
 		if os.IsNotExist(err) {
-			return &Config{}, nil
+			return nil
 		}
-		return nil, fmt.Errorf("Reading %s: %v", filename, err)
+		return fmt.Errorf("Reading %s: %v", filename, err)
 	}
 	s := bufio.NewScanner(bytes.NewReader(data))
 	for s.Scan() {
 		line := s.Text()
 		i := strings.Index(line, "=")
 		if i < 0 {
-			return nil, fmt.Errorf("Bad line in %s: %q", filename, line)
+			return fmt.Errorf("Bad line in %s: %q", filename, line)
 		}
 		key, val := strings.TrimSpace(line[:i]), strings.TrimSpace(line[i+1:])
 		switch key {
 		default:
-			return nil, fmt.Errorf("Unknown key in %s: %q", filename, key)
+			return fmt.Errorf("Unknown key in %s: %q", filename, key)
 		case "project":
-			config.Project = val
+			c.Project = val
 		case "instance":
-			config.Instance = val
+			c.Instance = val
 		case "creds":
-			config.Creds = val
+			c.Creds = val
 		}
 	}
 
-	config.registerFlags()
-	if err := config.setFromGcloud(); err != nil {
-		return nil, err
+	c.registerFlags()
+	flag.Parse()
+	if err := c.setFromGcloud(); err != nil {
+		return err
 	}
 
-	return config, s.Err()
+	return s.Err()
 }
 
 type gcloudCredential struct {
@@ -128,14 +137,14 @@ func (c *Config) setFromGcloud() error {
 	if c.Creds == "" {
 		c.Creds = os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")
 		if c.Creds == "" {
-			log.Printf("-creds flag unset, will use gcloud credential")
+			fmt.Fprintln(c.ErrStream, "-creds flag unset, will use gcloud credential")
 		}
 	} else {
 		os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", c.Creds)
 	}
 
 	if c.Project == "" {
-		log.Printf("-project flag unset, will use gcloud active project")
+		fmt.Fprintln(c.ErrStream, "-project flag unset, will use gcloud active project")
 	}
 
 	if c.Creds != "" && c.Project != "" {
@@ -156,8 +165,7 @@ func (c *Config) setFromGcloud() error {
 	}
 
 	if c.Project == "" && gcloudConfig.Configuration.Properties.Core.Project != "" {
-		log.Printf("gcloud active project is \"%s\"",
-			gcloudConfig.Configuration.Properties.Core.Project)
+		fmt.Fprintf(c.ErrStream, "gcloud active project is \"%s\"", gcloudConfig.Configuration.Properties.Core.Project)
 		c.Project = gcloudConfig.Configuration.Properties.Core.Project
 	}
 
