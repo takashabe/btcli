@@ -6,6 +6,8 @@
 
 CLI client for the Bigtable with auto-completion.
 
+![tty](https://user-images.githubusercontent.com/681508/44247754-9ad3ea80-a221-11e8-9172-2cb709e1420a.gif)
+
 ## Features
 
 btcli is the cloud bigtable client tool.  Connect to your bigtable instances and any read items with auto-completion.
@@ -24,7 +26,7 @@ _write commands are not implemented yet_
 ## Installation
 
 ```
-go get github.com/takashabe/btcli
+go get github.com/takashabe/btcli/cmd/btcli
 ```
 
 ## Usage
