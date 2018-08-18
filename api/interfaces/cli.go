@@ -84,5 +84,7 @@ func (c *CLI) preparePrompt(conf *config.Config) *prompt.Prompt {
 	return prompt.New(
 		executor.Do,
 		completer.Do,
+		// TODO: Add histories from the history file.
+		// prompt.OptionHistory(),
 	)
 }

@@ -47,6 +47,8 @@ func (e *Executor) Do(s string) {
 
 	for _, c := range commands {
 		if cmd == c.Name {
+			// TODO: Add command histories to history file
+
 			// TODO: extract args[0]
 			c.Runner(ctx, e, args...)
 			return
