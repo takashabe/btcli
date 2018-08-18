@@ -80,6 +80,9 @@ func TestReadOption(t *testing.T) {
 
 func TestDoReadRowExecutor(t *testing.T) {
 	tm, _ := time.Parse("2006-01-02 15:04:05", "2018-01-01 00:00:00")
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
 	cases := []struct {
 		input   string
 		expect  string
@@ -140,10 +143,7 @@ func TestDoReadRowExecutor(t *testing.T) {
 		},
 	}
 	for _, c := range cases {
-		ctrl := gomock.NewController(t)
 		mockBtRepo := repository.NewMockBigtable(ctrl)
-		defer ctrl.Finish()
-
 		c.prepare(mockBtRepo)
 
 		var buf bytes.Buffer
@@ -163,6 +163,9 @@ func TestDoReadRowExecutor(t *testing.T) {
 }
 
 func TestDoCountExecutor(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
 	cases := []struct {
 		input   string
 		expect  string
@@ -177,10 +180,7 @@ func TestDoCountExecutor(t *testing.T) {
 		},
 	}
 	for _, c := range cases {
-		ctrl := gomock.NewController(t)
 		mockBtRepo := repository.NewMockBigtable(ctrl)
-		defer ctrl.Finish()
-
 		c.prepare(mockBtRepo)
 
 		var buf bytes.Buffer
