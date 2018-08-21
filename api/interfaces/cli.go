@@ -7,6 +7,7 @@ import (
 	"os"
 
 	prompt "github.com/c-bata/go-prompt"
+	"github.com/pkg/errors"
 	"github.com/takashabe/btcli/api/application"
 	"github.com/takashabe/btcli/api/config"
 	"github.com/takashabe/btcli/api/infrastructure/bigtable"
@@ -26,25 +27,35 @@ const (
 type CLI struct {
 	OutStream io.Writer
 	ErrStream io.Writer
+
+	Version string
 }
 
 // Run invokes the CLI with the given arguments
 func (c *CLI) Run(args []string) int {
-	conf, err := c.loadConfig()
+	conf, err := c.loadConfig(args)
 	if err != nil {
 		fmt.Fprintf(c.ErrStream, "args parse error: %v\n", err)
 		return ExitCodeParseError
 	}
 
-	p := c.preparePrompt(conf)
+	p, err := c.preparePrompt(conf)
+	if err != nil {
+		fmt.Fprintf(c.ErrStream, "failed to initialized prompt: %v\n", err)
+		return ExitCodeError
+	}
+
+	fmt.Fprintf(c.OutStream, "Version: %s\n", c.Version)
+	fmt.Fprintf(c.OutStream, "Please use `exit` or `Ctrl-D` to exit this program.\n")
 	p.Run()
 
 	// TODO: This is dead code. Invoke os.Exit by the prompt.Run
 	return ExitCodeOK
 }
 
-func (c *CLI) loadConfig() (*config.Config, error) {
-	conf, err := config.Load()
+func (c *CLI) loadConfig(args []string) (*config.Config, error) {
+	conf := config.NewConfig(c.ErrStream)
+	err := conf.Load()
 	if err != nil {
 		return nil, err
 	}
@@ -52,8 +63,6 @@ func (c *CLI) loadConfig() (*config.Config, error) {
 	flag.Usage = func() {
 		usage(c.OutStream)
 	}
-	flag.Parse()
-
 	return conf, nil
 }
 
@@ -63,10 +72,10 @@ func usage(w io.Writer) {
 	flag.CommandLine.PrintDefaults()
 }
 
-func (c *CLI) preparePrompt(conf *config.Config) *prompt.Prompt {
+func (c *CLI) preparePrompt(conf *config.Config) (*prompt.Prompt, error) {
 	repository, err := bigtable.NewBigtableRepository(conf.Project, conf.Instance)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "failed to initialized bigtable repository:%v", err)
+		return nil, errors.Wrapf(err, "failed to initialized bigtable repository:%v", err)
 	}
 	tableInteractor := application.NewTableInteractor(repository)
 	rowsInteractor := application.NewRowsInteractor(repository)
@@ -86,5 +95,5 @@ func (c *CLI) preparePrompt(conf *config.Config) *prompt.Prompt {
 		completer.Do,
 		// TODO: Add histories from the history file.
 		// prompt.OptionHistory(),
-	)
+	), nil
 }
