@@ -34,6 +34,9 @@ lint: ## Check golint
 generate: ## Run go generate
 	go generate $(SUBPACKAGES)
 
+test-data: ## Initialize test data
+	./_tools/setup_bt.sh test-project test-instance dummy
+
 ##### Utilities
 
 .PHONY: help
