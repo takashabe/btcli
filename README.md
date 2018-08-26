@@ -43,7 +43,7 @@ _-creds e.g. `~/.config/gcloud/application_default_credentials.json`_
 
 - ls
 
-List tables and column families
+List tables
 
 ```
 ls          List tables
