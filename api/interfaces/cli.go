@@ -1,10 +1,12 @@
 package interfaces
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	"io"
 	"os"
+	"os/user"
 
 	prompt "github.com/c-bata/go-prompt"
 	"github.com/pkg/errors"
@@ -39,7 +41,21 @@ func (c *CLI) Run(args []string) int {
 		return ExitCodeParseError
 	}
 
-	p, err := c.preparePrompt(conf)
+	histories := []string{}
+	f, err := loadHistoryFile(conf)
+	if err != nil {
+		// NOTE: Continue processing even if an error occurred at open a file
+		fmt.Fprintf(c.ErrStream, "failed to a history file open: %v\n", err)
+	} else {
+		// TODO: Read lines and set to histories
+		s := bufio.NewScanner(f)
+		for s.Scan() {
+			histories = append(histories, s.Text())
+		}
+		defer f.Close()
+	}
+
+	p, err := c.preparePrompt(conf, f, histories)
 	if err != nil {
 		fmt.Fprintf(c.ErrStream, "failed to initialized prompt: %v\n", err)
 		return ExitCodeError
@@ -72,7 +88,7 @@ func usage(w io.Writer) {
 	flag.CommandLine.PrintDefaults()
 }
 
-func (c *CLI) preparePrompt(conf *config.Config) (*prompt.Prompt, error) {
+func (c *CLI) preparePrompt(conf *config.Config, writer io.Writer, histories []string) (*prompt.Prompt, error) {
 	repository, err := bigtable.NewBigtableRepository(conf.Project, conf.Instance)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to initialized bigtable repository:%v", err)
@@ -81,8 +97,10 @@ func (c *CLI) preparePrompt(conf *config.Config) (*prompt.Prompt, error) {
 	rowsInteractor := application.NewRowsInteractor(repository)
 
 	executor := Executor{
-		outStream:       c.OutStream,
-		errStream:       c.ErrStream,
+		outStream: c.OutStream,
+		errStream: c.ErrStream,
+		history:   writer,
+
 		rowsInteractor:  rowsInteractor,
 		tableInteractor: tableInteractor,
 	}
@@ -93,7 +111,17 @@ func (c *CLI) preparePrompt(conf *config.Config) (*prompt.Prompt, error) {
 	return prompt.New(
 		executor.Do,
 		completer.Do,
-		// TODO: Add histories from the history file.
-		// prompt.OptionHistory(),
+		prompt.OptionHistory(histories),
+		prompt.OptionPreviewSuggestionTextColor(prompt.Blue),
+		prompt.OptionSelectedSuggestionBGColor(prompt.LightGray),
+		prompt.OptionSuggestionBGColor(prompt.DarkGray),
 	), nil
+}
+
+func loadHistoryFile(conf *config.Config) (*os.File, error) {
+	u, err := user.Current()
+	if err != nil {
+		return nil, err
+	}
+	return os.OpenFile(u.HomeDir+"/.btcli_history", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 }

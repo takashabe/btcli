@@ -29,6 +29,7 @@ func init() {
 type Executor struct {
 	outStream io.Writer
 	errStream io.Writer
+	history   io.Writer
 
 	tableInteractor *application.TableInteractor
 	rowsInteractor  *application.RowsInteractor
@@ -47,7 +48,9 @@ func (e *Executor) Do(s string) {
 
 	for _, c := range commands {
 		if cmd == c.Name {
-			// TODO: Add command histories to history file
+			if e.history != nil {
+				fmt.Fprintln(e.history, strings.Join(args, " "))
+			}
 
 			// TODO: extract args[0]
 			c.Runner(ctx, e, args...)
