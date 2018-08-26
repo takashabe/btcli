@@ -1,23 +1,25 @@
-SUBPACKAGES       := $(shell go list ./...)
-APP_MAIN          := cmd/btcli/btcli.go
-BRANCH_NAME       := $(shell git symbolic-ref --short HEAD)
-CURRENT_TIMESTAMP := $(shell date +%Y-%m-%d-%H%M%S)
-VERSION           := $(CURRENT_TIMESTAMP).$(subst /,_,$(BRANCH_NAME))
-LDFLAGS           := -ldflags='-s -w -X "main.Version=$(VERSION)"'
+SUBPACKAGES := $(shell go list ./...)
+APP_MAIN    := cmd/btcli/btcli.go
+VERSION     := $(shell git describe --tags --abbrev=0)
+REVISION    := $(shell git rev-parse --short HEAD)
+LDFLAGS     := -X 'main.Version=$(VERSION)' \
+               -X 'main.Revision=$(REVISION)'
 
 .DEFAULT_GOAL := help
 
 ##### Operation
 
+.PHONY: build run
+
 build: $(APP_MAIN) ## Build application
-	go build -a $(LDFLAGS) $(APP_MAIN)
+	go build -a -o bin/btcli -ldflags "$(LDFLAGS)" $(APP_MAIN)
 
 run: $(APP_MAIN) ## Run application
 	go run $(APP_MAIN)
 
 ##### Development
 
-.PHONY: deps test vet lint
+.PHONY: deps test vet lint generate testdata
 
 deps: ## Setup dependencies package
 	dep ensure
@@ -34,11 +36,12 @@ lint: ## Check golint
 generate: ## Run go generate
 	go generate $(SUBPACKAGES)
 
-test-data: ## Initialize test data
+testdata: ## Initialize test data
 	./_tools/setup_bt.sh test-project test-instance dummy
 
 ##### Utilities
 
 .PHONY: help
+
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
