@@ -6,14 +6,18 @@ import (
 	"github.com/takashabe/btcli/api/interfaces"
 )
 
-// Version app version
-var Version = "undefined"
+// App version
+var (
+	Version  = "undefined"
+	Revision = "undefined"
+)
 
 func main() {
 	cli := &interfaces.CLI{
 		OutStream: os.Stdout,
 		ErrStream: os.Stderr,
 		Version:   Version,
+		Revision:  Revision,
 	}
 	os.Exit(cli.Run(os.Args))
 }
