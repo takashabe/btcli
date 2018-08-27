@@ -3,6 +3,7 @@ package bigtable
 import (
 	"context"
 	"sort"
+	"time"
 
 	"cloud.google.com/go/bigtable"
 	"github.com/takashabe/btcli/api/domain"
@@ -41,8 +42,10 @@ func getAdminClient(project, instance string) (*bigtable.AdminClient, error) {
 }
 
 func (b *bigtableRepository) Get(ctx context.Context, table, key string, opts ...bigtable.ReadOption) (*domain.Bigtable, error) {
-	tbl := b.client.Open(table)
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
 
+	tbl := b.client.Open(table)
 	row, err := tbl.ReadRow(ctx, key, opts...)
 	if err != nil {
 		return nil, err
@@ -56,8 +59,10 @@ func (b *bigtableRepository) Get(ctx context.Context, table, key string, opts ..
 }
 
 func (b *bigtableRepository) GetRows(ctx context.Context, table string, rr bigtable.RowRange, opts ...bigtable.ReadOption) (*domain.Bigtable, error) {
-	tbl := b.client.Open(table)
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
 
+	tbl := b.client.Open(table)
 	rows := []*domain.Row{}
 	err := tbl.ReadRows(ctx, rr, func(row bigtable.Row) bool {
 		rows = append(rows, readRow(row))
@@ -73,8 +78,10 @@ func (b *bigtableRepository) GetRows(ctx context.Context, table string, rr bigta
 }
 
 func (b *bigtableRepository) Count(ctx context.Context, table string) (int, error) {
-	tbl := b.client.Open(table)
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
 
+	tbl := b.client.Open(table)
 	cnt := 0
 	err := tbl.ReadRows(ctx, bigtable.InfiniteRange(""), func(_ bigtable.Row) bool {
 		cnt++
@@ -108,6 +115,9 @@ func readRow(r bigtable.Row) *domain.Row {
 }
 
 func (b *bigtableRepository) Tables(ctx context.Context) ([]string, error) {
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
 	tbls, err := b.adminClient.Tables(ctx)
 	if err != nil {
 		return []string{}, err
