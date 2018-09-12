@@ -26,7 +26,7 @@ _write commands are not implemented yet_
 ## Installation
 
 ```
-go get github.com/takashabe/btcli/cmd/btcli
+go get -u github.com/takashabe/btcli/cmd/btcli
 ```
 
 ## Usage
