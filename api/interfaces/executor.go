@@ -239,7 +239,33 @@ func rowRange(parsedArgs map[string]string) (bigtable.RowRange, error) {
 }
 
 func readOption(parsedArgs map[string]string) ([]bigtable.ReadOption, error) {
-	var opts []bigtable.ReadOption
+	var (
+		opts []bigtable.ReadOption
+		fils []bigtable.Filter
+	)
+
+	// filters
+	if regex := parsedArgs["regex"]; regex != "" {
+		// opts = append(opts, bigtable.RowFilter(bigtable.RowKeyFilter(regex)))
+		fils = append(fils, bigtable.RowKeyFilter(regex))
+	}
+	if family := parsedArgs["family"]; family != "" {
+		// opts = append(opts, bigtable.RowFilter(bigtable.FamilyFilter(fmt.Sprintf("^%s$", family))))
+		fils = append(fils, bigtable.FamilyFilter(fmt.Sprintf("^%s$", family)))
+	}
+	if version := parsedArgs["version"]; version != "" {
+		n, err := strconv.ParseInt(version, 0, 64)
+		if err != nil {
+			return nil, err
+		}
+		// opts = append(opts, bigtable.RowFilter(bigtable.LatestNFilter(int(n))))
+		fils = append(fils, bigtable.LatestNFilter(int(n)))
+	}
+	if len(fils) > 0 {
+		opts = append(opts, bigtable.RowFilter(bigtable.ChainFilters(fils...)))
+	}
+
+	// isolated readOption
 	if count := parsedArgs["count"]; count != "" {
 		n, err := strconv.ParseInt(count, 0, 64)
 		if err != nil {
@@ -247,22 +273,6 @@ func readOption(parsedArgs map[string]string) ([]bigtable.ReadOption, error) {
 		}
 		opts = append(opts, bigtable.LimitRows(n))
 	}
-	if regex := parsedArgs["regex"]; regex != "" {
-		opts = append(opts, bigtable.RowFilter(bigtable.RowKeyFilter(regex)))
-	}
-	if version := parsedArgs["version"]; version != "" {
-		n, err := strconv.ParseInt(version, 0, 64)
-		if err != nil {
-			return nil, err
-		}
-		opts = append(opts, bigtable.RowFilter(bigtable.LatestNFilter(int(n))))
-	}
-	if family := parsedArgs["family"]; family != "" {
-		opts = append(opts, bigtable.RowFilter(bigtable.FamilyFilter(fmt.Sprintf("^%s$", family))))
-	}
-
-	// TODO: Add read options. refs hbase-shell
-
 	return opts, nil
 }
 
