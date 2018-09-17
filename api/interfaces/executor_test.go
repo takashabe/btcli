@@ -58,8 +58,8 @@ func TestReadOption(t *testing.T) {
 				"regex": "a",
 			},
 			[]bigtable.ReadOption{
+				chainFilters(bigtable.RowKeyFilter("a")),
 				bigtable.LimitRows(1),
-				bigtable.RowFilter(bigtable.RowKeyFilter("a")),
 			},
 		},
 		{
@@ -67,7 +67,7 @@ func TestReadOption(t *testing.T) {
 				"family": "d",
 			},
 			[]bigtable.ReadOption{
-				bigtable.RowFilter(bigtable.FamilyFilter("^d$")),
+				chainFilters(bigtable.FamilyFilter("^d$")),
 			},
 		},
 	}
@@ -99,7 +99,12 @@ func TestDoReadRowExecutor(t *testing.T) {
 			"lookup table a version=1 decode=int decode_columns=row:string,404:float",
 			"----------------------------------------\na\n  d:row                                    @ 2018/01/01-00:00:00.000000\n    \"a1\"\n",
 			func(mock *repository.MockBigtable) {
-				mock.EXPECT().Get(gomock.Any(), "table", "a", bigtable.RowFilter(bigtable.LatestNFilter(1))).Return(
+				mock.EXPECT().Get(
+					gomock.Any(),
+					"table",
+					"a",
+					chainFilters(bigtable.LatestNFilter(1)),
+				).Return(
 					&domain.Bigtable{
 						Table: "table",
 						Rows: []*domain.Row{
@@ -122,7 +127,43 @@ func TestDoReadRowExecutor(t *testing.T) {
 			"read table prefix=a version=1 decode=int decode_columns=row:string,404:float",
 			"----------------------------------------\na\n  d:row                                    @ 2018/01/01-00:00:00.000000\n    \"a1\"\n",
 			func(mock *repository.MockBigtable) {
-				mock.EXPECT().GetRows(gomock.Any(), "table", bigtable.PrefixRange("a"), bigtable.RowFilter(bigtable.LatestNFilter(1))).Return(
+				mock.EXPECT().GetRows(
+					gomock.Any(),
+					"table",
+					bigtable.PrefixRange("a"),
+					chainFilters(bigtable.LatestNFilter(1)),
+				).Return(
+					&domain.Bigtable{
+						Table: "table",
+						Rows: []*domain.Row{
+							&domain.Row{
+								Key: "a",
+								Columns: []*domain.Column{
+									&domain.Column{
+										Family:    "d",
+										Qualifier: "d:row",
+										Value:     []byte("a1"),
+										Version:   tm,
+									},
+								},
+							},
+						},
+					}, nil).Times(1)
+			},
+		},
+		{
+			"read table version=1 family=d",
+			"----------------------------------------\na\n  d:row                                    @ 2018/01/01-00:00:00.000000\n    \"a1\"\n",
+			func(mock *repository.MockBigtable) {
+				mock.EXPECT().GetRows(
+					gomock.Any(),
+					"table",
+					bigtable.RowRange{},
+					chainFilters(
+						bigtable.FamilyFilter("^d$"),
+						bigtable.LatestNFilter(1),
+					),
+				).Return(
 					&domain.Bigtable{
 						Table: "table",
 						Rows: []*domain.Row{
