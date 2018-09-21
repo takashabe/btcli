@@ -48,11 +48,9 @@ func (c *Config) Load() error {
 	filename := filepath.Join(os.Getenv("HOME"), ".cbtrc")
 	data, err := ioutil.ReadFile(filename)
 	if err != nil {
-		// silent fail if the file isn't there
-		if os.IsNotExist(err) {
-			return nil
+		if !os.IsNotExist(err) {
+			return fmt.Errorf("Reading %s: %v", filename, err)
 		}
-		return fmt.Errorf("Reading %s: %v", filename, err)
 	}
 	s := bufio.NewScanner(bytes.NewReader(data))
 	for s.Scan() {
