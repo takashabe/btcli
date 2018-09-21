@@ -36,6 +36,9 @@ type CLI struct {
 
 // Run invokes the CLI with the given arguments
 func (c *CLI) Run(args []string) int {
+	fmt.Fprintf(c.OutStream, "btcli Version: %s(%s)\n", c.Version, c.Revision)
+	fmt.Fprintf(c.OutStream, "Please use `exit` or `Ctrl-D` to exit this program.\n")
+
 	conf, err := c.loadConfig(args)
 	if err != nil {
 		fmt.Fprintf(c.ErrStream, "args parse error: %v\n", err)
@@ -45,10 +48,9 @@ func (c *CLI) Run(args []string) int {
 	histories := []string{}
 	f, err := loadHistoryFile(conf)
 	if err != nil {
-		// NOTE: Continue processing even if an error occurred at open a file
+		// Continue processing even if an error occurred at open a file
 		fmt.Fprintf(c.ErrStream, "failed to a history file open: %v\n", err)
 	} else {
-		// TODO: Read lines and set to histories
 		s := bufio.NewScanner(f)
 		for s.Scan() {
 			histories = append(histories, s.Text())
@@ -61,9 +63,6 @@ func (c *CLI) Run(args []string) int {
 		fmt.Fprintf(c.ErrStream, "failed to initialized prompt: %v\n", err)
 		return ExitCodeError
 	}
-
-	fmt.Fprintf(c.OutStream, "btcli Version: %s(%s)\n", c.Version, c.Revision)
-	fmt.Fprintf(c.OutStream, "Please use `exit` or `Ctrl-D` to exit this program.\n")
 	p.Run()
 
 	// TODO: This is dead code. Invoke os.Exit by the prompt.Run

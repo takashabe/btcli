@@ -163,7 +163,7 @@ func (c *Config) setFromGcloud() error {
 	}
 
 	if c.Project == "" && gcloudConfig.Configuration.Properties.Core.Project != "" {
-		fmt.Fprintf(c.ErrStream, "gcloud active project is \"%s\"", gcloudConfig.Configuration.Properties.Core.Project)
+		fmt.Fprintf(c.ErrStream, "gcloud active project is \"%s\"\n", gcloudConfig.Configuration.Properties.Core.Project)
 		c.Project = gcloudConfig.Configuration.Properties.Core.Project
 	}
 
