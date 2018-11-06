@@ -209,7 +209,7 @@ func (e *Executor) readWithOptions(table string, args ...string) {
 	ctx := context.Background()
 	rows, err := e.rowsInteractor.GetRows(ctx, table, rr, ro...)
 	if err != nil {
-		fmt.Fprintf(e.errStream, "%v", err)
+		fmt.Fprintf(e.errStream, "%v\n", err)
 		return
 	}
 
@@ -261,7 +261,10 @@ func readOption(parsedArgs map[string]string) ([]bigtable.ReadOption, error) {
 		// opts = append(opts, bigtable.RowFilter(bigtable.LatestNFilter(int(n))))
 		fils = append(fils, bigtable.LatestNFilter(int(n)))
 	}
-	if len(fils) > 0 {
+
+	if len(fils) == 1 {
+		opts = append(opts, bigtable.RowFilter(fils[0]))
+	} else if len(fils) > 1 {
 		opts = append(opts, bigtable.RowFilter(bigtable.ChainFilters(fils...)))
 	}
 
