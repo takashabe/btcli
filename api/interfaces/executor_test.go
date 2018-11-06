@@ -58,7 +58,7 @@ func TestReadOption(t *testing.T) {
 				"regex": "a",
 			},
 			[]bigtable.ReadOption{
-				chainFilters(bigtable.RowKeyFilter("a")),
+				bigtable.RowFilter(bigtable.RowKeyFilter("a")),
 				bigtable.LimitRows(1),
 			},
 		},
@@ -67,7 +67,7 @@ func TestReadOption(t *testing.T) {
 				"family": "d",
 			},
 			[]bigtable.ReadOption{
-				chainFilters(bigtable.FamilyFilter("^d$")),
+				bigtable.RowFilter(bigtable.FamilyFilter("^d$")),
 			},
 		},
 	}
@@ -103,7 +103,7 @@ func TestDoReadRowExecutor(t *testing.T) {
 					gomock.Any(),
 					"table",
 					"a",
-					chainFilters(bigtable.LatestNFilter(1)),
+					bigtable.RowFilter(bigtable.LatestNFilter(1)),
 				).Return(
 					&domain.Bigtable{
 						Table: "table",
@@ -131,7 +131,7 @@ func TestDoReadRowExecutor(t *testing.T) {
 					gomock.Any(),
 					"table",
 					bigtable.PrefixRange("a"),
-					chainFilters(bigtable.LatestNFilter(1)),
+					bigtable.RowFilter(bigtable.LatestNFilter(1)),
 				).Return(
 					&domain.Bigtable{
 						Table: "table",
