@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"cloud.google.com/go/bigtable"
-	"github.com/k0kubun/pp"
 	"github.com/stretchr/testify/assert"
 	"github.com/takashabe/btcli/api/domain"
 )
@@ -245,7 +244,7 @@ func TestMut(t *testing.T) {
 	}
 	wg.Wait()
 
-	a, err := br.Get(context.Background(), "users", "1")
+	a, err := br.Get(context.Background(), "users", "1", bigtable.RowFilter(bigtable.LatestNFilter(1)))
 	assert.NoError(t, err)
-	pp.Println(a)
+	assert.Equal(t, a.Rows[0].Columns[0].Value, []uint8([]byte("1")))
 }
