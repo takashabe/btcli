@@ -125,3 +125,18 @@ func (b *bigtableRepository) Tables(ctx context.Context) ([]string, error) {
 	sort.Strings(tbls)
 	return tbls, nil
 }
+
+func (b *bigtableRepository) Mut(table string) error {
+	tbl := b.client.Open(table)
+
+	mut := bigtable.NewMutation()
+	mut.Set("d", "row", bigtable.Now(), []byte("1"))
+
+	filter := bigtable.ChainFilters(
+		bigtable.LatestNFilter(1),
+		bigtable.ValueFilter("madoka"),
+	)
+
+	cm := bigtable.NewCondMutation(filter, mut, nil)
+	return tbl.Apply(context.Background(), "1", cm)
+}

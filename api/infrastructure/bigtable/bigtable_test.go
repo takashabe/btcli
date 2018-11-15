@@ -2,10 +2,13 @@ package bigtable
 
 import (
 	"context"
+	"fmt"
+	"sync"
 	"testing"
 	"time"
 
 	"cloud.google.com/go/bigtable"
+	"github.com/k0kubun/pp"
 	"github.com/stretchr/testify/assert"
 	"github.com/takashabe/btcli/api/domain"
 )
@@ -220,4 +223,29 @@ func TestTables(t *testing.T) {
 
 		assert.Subset(t, tbls, c.expect)
 	}
+}
+
+func TestMut(t *testing.T) {
+	loadFixture(t, "testdata/users.yaml")
+
+	r, err := NewBigtableRepository("test-project", "test-instance")
+	assert.NoError(t, err)
+	br := r.(*bigtableRepository)
+
+	var wg sync.WaitGroup
+	for i := 0; i < 100; i++ {
+		wg.Add(1)
+		go func() {
+			err := br.Mut("users")
+			if err != nil {
+				fmt.Println(err)
+			}
+			wg.Done()
+		}()
+	}
+	wg.Wait()
+
+	a, err := br.Get(context.Background(), "users", "1")
+	assert.NoError(t, err)
+	pp.Println(a)
 }
