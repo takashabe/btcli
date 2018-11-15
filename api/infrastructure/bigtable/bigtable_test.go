@@ -244,7 +244,8 @@ func TestMut(t *testing.T) {
 	}
 	wg.Wait()
 
-	a, err := br.Get(context.Background(), "users", "1", bigtable.RowFilter(bigtable.LatestNFilter(1)))
+	a, err := br.Get(context.Background(), "users", "1", bigtable.RowFilter(bigtable.LatestNFilter(2)))
 	assert.NoError(t, err)
 	assert.Equal(t, a.Rows[0].Columns[0].Value, []uint8([]byte("1")))
+	assert.Equal(t, a.Rows[0].Columns[1].Value, []uint8([]byte("madoka")))
 }
