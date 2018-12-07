@@ -58,8 +58,10 @@ func (c *Completer) completeWithArguments(args ...string) []prompt.Suggest {
 			{Text: "start"},
 			{Text: "end"},
 			{Text: "prefix"},
-			{Text: "version"},
 			{Text: "family"},
+			{Text: "version"},
+			{Text: "decode"},
+			{Text: "decode-columns"},
 		}
 		if len(args) > 2 {
 			distinctCommands := filterDuplicateCommands(args, subcommands)
