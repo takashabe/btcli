@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/golang:1.10
+      - image: circleci/golang:1.11.2
         environment:
           BIGTABLE_EMULATOR_HOST: 127.0.0.1:8864
       - image: google/cloud-sdk
@@ -18,12 +18,6 @@ jobs:
           command: wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && tar -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
           environment:
             DOCKERIZE_VERSION: v0.6.0
-
-      - run:
-          name: Install dependencies
-          command: |
-            go get -u github.com/golang/dep/cmd/dep
-            make deps
 
       - run:
           name: Wait for backend services startup
