@@ -21,9 +21,6 @@ run: $(APP_MAIN) ## Run application
 
 .PHONY: deps test vet lint generate testdata
 
-deps: ## Setup dependencies package
-	dep ensure
-
 test: ## Run go test
 	go test -v $(SUBPACKAGES)
 
