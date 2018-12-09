@@ -63,8 +63,9 @@ Read from a single row
 
 ```
 lookup <table> <row> [family=<column_family>] [version=<n>]
-  family    Read only columns family with <columns_family>
-  version   Read only latest <n> columns
+        version        Read only latest <n> columns
+        decode         Decode big-endian value
+        decode-columns Decode big-endian value with columns. <column_name:<string|int|float>[,<column_name:...>]
 ```
 
 - read
@@ -73,11 +74,14 @@ Read rows
 
 ```
 read <table> [start=<row>] [end=<row>] [prefix=<prefix>] [family=<column_family>] [version=<n>]
-  start     Start reading at this row
-  end       Stop reading before this row
-  prefix    Read rows with this prefix
-  family    Read only columns family with <columns_family>
-  version   Read only latest <n> columns
+        start          Start reading at this row
+        end            Stop reading before this row
+        prefix         Read rows with this prefix
+        value          Read rows with has value
+        family         Read only columns family with <columns_family>
+        version        Read only latest <n> columns
+        decode         Decode big-endian value
+        decode-columns Decode big-endian value with columns. <column_name:<string|int|float>[,<column_name:...>]
 ```
 
 ## Support commands
@@ -88,13 +92,17 @@ read <table> [start=<row>] [end=<row>] [prefix=<prefix>] [family=<column_family>
 - [x] count
 - [x] lookup
     - [x] version
-    - [x] family
+    - [x] decode
+    - [x] decode-columns
 - [x] read
     - [x] start
     - [x] end
     - [x] prefix
-    - [x] version
+    - [x] value
     - [x] family
+    - [x] version
+    - [x] decode
+    - [x] decode-columns
 
 ### Write commands
 
