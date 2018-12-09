@@ -114,10 +114,10 @@ func TestDoReadRowExecutor(t *testing.T) {
 					&domain.Bigtable{
 						Table: "table",
 						Rows: []*domain.Row{
-							&domain.Row{
+							{
 								Key: "a",
 								Columns: []*domain.Column{
-									&domain.Column{
+									{
 										Family:    "d",
 										Qualifier: "d:row",
 										Value:     []byte("a1"),
@@ -142,10 +142,10 @@ func TestDoReadRowExecutor(t *testing.T) {
 					&domain.Bigtable{
 						Table: "table",
 						Rows: []*domain.Row{
-							&domain.Row{
+							{
 								Key: "a",
 								Columns: []*domain.Column{
-									&domain.Column{
+									{
 										Family:    "d",
 										Qualifier: "d:row",
 										Value:     []byte("a1"),
@@ -173,10 +173,10 @@ func TestDoReadRowExecutor(t *testing.T) {
 					&domain.Bigtable{
 						Table: "table",
 						Rows: []*domain.Row{
-							&domain.Row{
+							{
 								Key: "a",
 								Columns: []*domain.Column{
-									&domain.Column{
+									{
 										Family:    "d",
 										Qualifier: "d:row",
 										Value:     []byte("a1"),

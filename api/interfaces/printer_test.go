@@ -18,7 +18,7 @@ func TestPrintRows(t *testing.T) {
 			&domain.Row{
 				Key: "a",
 				Columns: []*domain.Column{
-					&domain.Column{
+					{
 						Family:    "d",
 						Qualifier: "d:row",
 						Value:     []byte("a1"),
