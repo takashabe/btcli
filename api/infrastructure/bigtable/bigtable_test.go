@@ -26,7 +26,7 @@ func TestGet(t *testing.T) {
 			&domain.Row{
 				Key: "1",
 				Columns: []*domain.Column{
-					&domain.Column{
+					{
 						Family:    "d",
 						Qualifier: "d:row",
 						Value:     []byte("madoka"),
@@ -41,13 +41,13 @@ func TestGet(t *testing.T) {
 			&domain.Row{
 				Key: "1##1",
 				Columns: []*domain.Column{
-					&domain.Column{
+					{
 						Family:    "d",
 						Qualifier: "d:content",
 						Value:     []byte("madoka_content"),
 						Version:   now,
 					},
-					&domain.Column{
+					{
 						Family:    "d",
 						Qualifier: "d:title",
 						Value:     []byte("madoka_title"),
@@ -91,10 +91,10 @@ func TestGetRows(t *testing.T) {
 			bigtable.PrefixRange("1"),
 			[]bigtable.ReadOption{},
 			[]*domain.Row{
-				&domain.Row{
+				{
 					Key: "1",
 					Columns: []*domain.Column{
-						&domain.Column{
+						{
 							Family:    "d",
 							Qualifier: "d:row",
 							Value:     []byte("madoka"),
@@ -102,10 +102,10 @@ func TestGetRows(t *testing.T) {
 						},
 					},
 				},
-				&domain.Row{
+				{
 					Key: "10",
 					Columns: []*domain.Column{
-						&domain.Column{
+						{
 							Family:    "d'",
 							Qualifier: "d':row",
 							Value:     []byte("madoka"),
@@ -127,10 +127,10 @@ func TestGetRows(t *testing.T) {
 				),
 			},
 			[]*domain.Row{
-				&domain.Row{
+				{
 					Key: "4",
 					Columns: []*domain.Column{
-						&domain.Column{
+						{
 							Family:    "d",
 							Qualifier: "d:row",
 							Value:     []byte("anko"),
@@ -145,16 +145,16 @@ func TestGetRows(t *testing.T) {
 			bigtable.PrefixRange("3"),
 			[]bigtable.ReadOption{},
 			[]*domain.Row{
-				&domain.Row{
+				{
 					Key: "3##1",
 					Columns: []*domain.Column{
-						&domain.Column{
+						{
 							Family:    "d",
 							Qualifier: "d:content",
 							Value:     []uint8{0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
 							Version:   tm,
 						},
-						&domain.Column{
+						{
 							Family:    "d",
 							Qualifier: "d:title",
 							Value:     []uint8{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01},
