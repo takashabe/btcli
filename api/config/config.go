@@ -37,6 +37,7 @@ func (c *Config) registerFlags() {
 	flag.StringVar(&c.Creds, "creds", c.Creds, "if set, use application credentials in this file")
 }
 
+// NewConfig returns initialized config.
 func NewConfig(writer io.Writer) *Config {
 	return &Config{
 		ErrStream: writer,
