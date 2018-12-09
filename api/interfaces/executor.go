@@ -185,7 +185,7 @@ func (e *Executor) readWithOptions(table string, args ...string) {
 			return
 		case "decode", "decode_columns":
 			parsed[key] = val
-		case "count", "start", "end", "prefix", "version", "family":
+		case "count", "start", "end", "prefix", "version", "family", "value":
 			parsed[key] = val
 		}
 	}
@@ -246,11 +246,9 @@ func readOption(parsedArgs map[string]string) ([]bigtable.ReadOption, error) {
 
 	// filters
 	if regex := parsedArgs["regex"]; regex != "" {
-		// opts = append(opts, bigtable.RowFilter(bigtable.RowKeyFilter(regex)))
 		fils = append(fils, bigtable.RowKeyFilter(regex))
 	}
 	if family := parsedArgs["family"]; family != "" {
-		// opts = append(opts, bigtable.RowFilter(bigtable.FamilyFilter(fmt.Sprintf("^%s$", family))))
 		fils = append(fils, bigtable.FamilyFilter(fmt.Sprintf("^%s$", family)))
 	}
 	if version := parsedArgs["version"]; version != "" {
@@ -258,8 +256,10 @@ func readOption(parsedArgs map[string]string) ([]bigtable.ReadOption, error) {
 		if err != nil {
 			return nil, err
 		}
-		// opts = append(opts, bigtable.RowFilter(bigtable.LatestNFilter(int(n))))
 		fils = append(fils, bigtable.LatestNFilter(int(n)))
+	}
+	if value := parsedArgs["value"]; value != "" {
+		fils = append(fils, bigtable.ValueFilter(fmt.Sprintf("%s", value)))
 	}
 
 	if len(fils) == 1 {

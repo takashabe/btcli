@@ -64,10 +64,16 @@ func TestReadOption(t *testing.T) {
 		},
 		{
 			map[string]string{
-				"family": "d",
+				"family":  "d",
+				"version": "1",
+				"value":   "a$",
 			},
 			[]bigtable.ReadOption{
-				bigtable.RowFilter(bigtable.FamilyFilter("^d$")),
+				bigtable.RowFilter(bigtable.ChainFilters(
+					bigtable.FamilyFilter("^d$"),
+					bigtable.LatestNFilter(1),
+					bigtable.ValueFilter("a$"),
+				)),
 			},
 		},
 	}
