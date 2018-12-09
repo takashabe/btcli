@@ -20,7 +20,7 @@ _write commands are not implemented yet_
 
 - btcli has auto-completion
 - btcli can decode a big-endian values
-- btcli has a filter for the version and family
+- btcli has a filter for `value`, `version` and `family`
 - A print format that same as the cbt
 
 ## Installation
