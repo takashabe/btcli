@@ -59,6 +59,7 @@ func (c *Completer) completeWithArguments(args ...string) []prompt.Suggest {
 			{Text: "end"},
 			{Text: "prefix"},
 			{Text: "family"},
+			{Text: "value"},
 			{Text: "version"},
 			{Text: "decode"},
 			{Text: "decode-columns"},

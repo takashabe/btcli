@@ -37,7 +37,6 @@ var commands = []Command{
 		Name:        "lookup",
 		Description: "Read from a single row",
 		Usage: `lookup <table> <row> [family=<column_family>] [version=<n>]
-	family         Read only columns family with <columns_family>
 	version        Read only latest <n> columns
 	decode         Decode big-endian value
 	decode-columns Decode big-endian value with columns. <column_name:<string|int|float>[,<column_name:...>]`,
