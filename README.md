@@ -29,6 +29,8 @@ _write commands are not implemented yet_
 go get -u github.com/takashabe/btcli/cmd/btcli
 ```
 
+_Require go1.11 or later and GO111MODULE environemnts_
+
 ## Usage
 
 ### Connect to bigtable
