@@ -7,6 +7,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"cloud.google.com/go/bigtable"
 	"github.com/takashabe/btcli/api/application"
@@ -185,7 +186,7 @@ func (e *Executor) readWithOptions(table string, args ...string) {
 			return
 		case "decode", "decode_columns":
 			parsed[key] = val
-		case "count", "start", "end", "prefix", "version", "family", "value":
+		case "count", "start", "end", "prefix", "version", "family", "value", "from", "to":
 			parsed[key] = val
 		}
 	}
@@ -257,6 +258,24 @@ func readOption(parsedArgs map[string]string) ([]bigtable.ReadOption, error) {
 			return nil, err
 		}
 		fils = append(fils, bigtable.LatestNFilter(int(n)))
+	}
+	var startTime, endTime time.Time
+	if from := parsedArgs["from"]; from != "" {
+		t, err := strconv.ParseInt(from, 0, 64)
+		if err != nil {
+			return nil, err
+		}
+		startTime = time.Unix(t, 0)
+	}
+	if to := parsedArgs["to"]; to != "" {
+		t, err := strconv.ParseInt(to, 0, 64)
+		if err != nil {
+			return nil, err
+		}
+		endTime = time.Unix(t, 0)
+	}
+	if !startTime.IsZero() || !endTime.IsZero() {
+		fils = append(fils, bigtable.TimestampRangeFilter(startTime, endTime))
 	}
 	if value := parsedArgs["value"]; value != "" {
 		fils = append(fils, bigtable.ValueFilter(fmt.Sprintf("%s", value)))
