@@ -80,6 +80,8 @@ read <table> [start=<row>] [end=<row>] [prefix=<prefix>] [family=<column_family>
         value          Read rows with has value
         family         Read only columns family with <columns_family>
         version        Read only latest <n> columns
+        from           Read cells whose version is newer than or equal to this unixtime
+        to             Read cells whose version is older than this unixtime
         decode         Decode big-endian value
         decode-columns Decode big-endian value with columns. <column_name:<string|int|float>[,<column_name:...>]
 ```
@@ -101,6 +103,8 @@ read <table> [start=<row>] [end=<row>] [prefix=<prefix>] [family=<column_family>
     - [x] value
     - [x] family
     - [x] version
+    - [x] from
+    - [x] to
     - [x] decode
     - [x] decode-columns
 

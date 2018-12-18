@@ -52,6 +52,8 @@ var commands = []Command{
 	value          Read rows with has value
 	family         Read only columns family with <columns_family>
 	version        Read only latest <n> columns
+	from           Read newer cells than this unixtime
+	to             Read older cells than this unittime
 	decode         Decode big-endian value
 	decode-columns Decode big-endian value with columns. <column_name:<string|int|float>[,<column_name:...>]`,
 		Runner: doRead,

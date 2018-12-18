@@ -76,6 +76,19 @@ func TestReadOption(t *testing.T) {
 				)),
 			},
 		},
+		{
+			map[string]string{
+				"family": "d",
+				"from":   "1545000981",
+				"to":     "1545100981",
+			},
+			[]bigtable.ReadOption{
+				bigtable.RowFilter(bigtable.ChainFilters(
+					bigtable.FamilyFilter("^d$"),
+					bigtable.TimestampRangeFilter(time.Unix(1545000981, 0), time.Unix(1545100981, 0)),
+				)),
+			},
+		},
 	}
 	for _, c := range cases {
 		actual, err := readOption(c.input)
