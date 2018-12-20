@@ -60,6 +60,11 @@ func (w *Printer) printValue(q string, v []byte) {
 }
 
 func (w *Printer) doPrint(decode string, v []byte) {
+	if len(v) != 8 {
+		fmt.Fprintf(w.outStream, "    %q\n", v)
+		return
+	}
+
 	switch decode {
 	case decodeTypeString:
 		fmt.Fprintf(w.outStream, "    %q\n", v)

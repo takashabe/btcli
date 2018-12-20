@@ -2,6 +2,8 @@ package interfaces
 
 import (
 	"bytes"
+	"io"
+	"os"
 	"testing"
 	"time"
 
@@ -66,26 +68,16 @@ func TestReadOption(t *testing.T) {
 			map[string]string{
 				"family":  "d",
 				"version": "1",
+				"from":    "1545000981",
+				"to":      "1545100981",
 				"value":   "a$",
 			},
 			[]bigtable.ReadOption{
 				bigtable.RowFilter(bigtable.ChainFilters(
 					bigtable.FamilyFilter("^d$"),
 					bigtable.LatestNFilter(1),
-					bigtable.ValueFilter("a$"),
-				)),
-			},
-		},
-		{
-			map[string]string{
-				"family": "d",
-				"from":   "1545000981",
-				"to":     "1545100981",
-			},
-			[]bigtable.ReadOption{
-				bigtable.RowFilter(bigtable.ChainFilters(
-					bigtable.FamilyFilter("^d$"),
 					bigtable.TimestampRangeFilter(time.Unix(1545000981, 0), time.Unix(1545100981, 0)),
+					bigtable.ValueFilter("a$"),
 				)),
 			},
 		},
@@ -103,11 +95,13 @@ func TestDoReadRowExecutor(t *testing.T) {
 	defer ctrl.Finish()
 
 	cases := []struct {
+		env     map[string]string
 		input   string
 		expect  string
 		prepare func(*repository.MockBigtable)
 	}{
 		{
+			map[string]string{},
 			"ls",
 			"a\nb\n",
 			func(mock *repository.MockBigtable) {
@@ -115,6 +109,7 @@ func TestDoReadRowExecutor(t *testing.T) {
 			},
 		},
 		{
+			map[string]string{},
 			"lookup table a version=1 decode=int decode_columns=row:string,404:float",
 			"----------------------------------------\na\n  d:row                                    @ 2018/01/01-00:00:00.000000\n    \"a1\"\n",
 			func(mock *repository.MockBigtable) {
@@ -143,6 +138,7 @@ func TestDoReadRowExecutor(t *testing.T) {
 			},
 		},
 		{
+			map[string]string{},
 			"read table prefix=a version=1 decode=int decode_columns=row:string,404:float",
 			"----------------------------------------\na\n  d:row                                    @ 2018/01/01-00:00:00.000000\n    \"a1\"\n",
 			func(mock *repository.MockBigtable) {
@@ -171,7 +167,42 @@ func TestDoReadRowExecutor(t *testing.T) {
 			},
 		},
 		{
+			map[string]string{},
 			"read table version=1 family=d",
+			"----------------------------------------\na\n  d:row                                    @ 2018/01/01-00:00:00.000000\n    \"a1\"\n",
+			func(mock *repository.MockBigtable) {
+				mock.EXPECT().GetRows(
+					gomock.Any(),
+					"table",
+					bigtable.RowRange{},
+					chainFilters(
+						bigtable.FamilyFilter("^d$"),
+						bigtable.LatestNFilter(1),
+					),
+				).Return(
+					&domain.Bigtable{
+						Table: "table",
+						Rows: []*domain.Row{
+							{
+								Key: "a",
+								Columns: []*domain.Column{
+									{
+										Family:    "d",
+										Qualifier: "d:row",
+										Value:     []byte("a1"),
+										Version:   tm,
+									},
+								},
+							},
+						},
+					}, nil).Times(1)
+			},
+		},
+		{
+			map[string]string{
+				"BTCLI_DECODE_TYPE": "int",
+			},
+			"read table version=1 family=d decode=int",
 			"----------------------------------------\na\n  d:row                                    @ 2018/01/01-00:00:00.000000\n    \"a1\"\n",
 			func(mock *repository.MockBigtable) {
 				mock.EXPECT().GetRows(
@@ -208,8 +239,8 @@ func TestDoReadRowExecutor(t *testing.T) {
 
 		var buf bytes.Buffer
 		// TODO: debug
-		// var r io.Reader = &buf
-		// r = io.TeeReader(r, os.Stdout)
+		var r io.Reader = &buf
+		r = io.TeeReader(r, os.Stdout)
 		executor := Executor{
 			outStream:       &buf,
 			errStream:       &buf,

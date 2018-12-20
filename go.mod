@@ -7,6 +7,7 @@ require (
 	github.com/golang/mock v1.2.0
 	github.com/google/btree v0.0.0-20180813153112-4030bb1f1f0c // indirect
 	github.com/googleapis/gax-go v2.0.2+incompatible // indirect
+	github.com/k0kubun/pp v2.3.0+incompatible
 	github.com/kr/pretty v0.1.0 // indirect
 	github.com/mattn/go-colorable v0.0.9 // indirect
 	github.com/mattn/go-isatty v0.0.4 // indirect
