@@ -66,25 +66,13 @@ func (w *Printer) doPrint(decode string, v []byte) {
 	}
 
 	switch decode {
-	case decodeTypeString:
-		fmt.Fprintf(w.outStream, "    %q\n", v)
 	case decodeTypeInt:
 		fmt.Fprintf(w.outStream, "    %d\n", w.byte2Int(v))
 	case decodeTypeFloat:
 		fmt.Fprintf(w.outStream, "    %f\n", w.byte2Float(v))
+	case decodeTypeString:
 	default:
-		w.doGuessPrint(v)
-	}
-}
-
-func (w *Printer) doGuessPrint(v []byte) {
-	// guess: float decides by high 2-bit flag
-	// https://en.wikipedia.org/wiki/Double-precision_floating-point_format
-	switch v[0] << 1 >> 7 & 1 {
-	case 1:
-		fmt.Fprintf(w.outStream, "    %f\n", w.byte2Float(v))
-	case 0:
-		fmt.Fprintf(w.outStream, "    %d\n", w.byte2Int(v))
+		fmt.Fprintf(w.outStream, "    %q\n", v)
 	}
 }
 
