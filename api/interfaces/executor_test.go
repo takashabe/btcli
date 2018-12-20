@@ -202,8 +202,8 @@ func TestDoReadRowExecutor(t *testing.T) {
 			map[string]string{
 				"BTCLI_DECODE_TYPE": "int",
 			},
-			"read table version=1 family=d decode=int",
-			"----------------------------------------\na\n  d:row                                    @ 2018/01/01-00:00:00.000000\n    \"a1\"\n",
+			"read table version=1 family=d",
+			"----------------------------------------\na\n  d:row                                    @ 2018/01/01-00:00:00.000000\n    1\n",
 			func(mock *repository.MockBigtable) {
 				mock.EXPECT().GetRows(
 					gomock.Any(),
@@ -223,7 +223,7 @@ func TestDoReadRowExecutor(t *testing.T) {
 									{
 										Family:    "d",
 										Qualifier: "d:row",
-										Value:     []byte("a1"),
+										Value:     []uint8{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01},
 										Version:   tm,
 									},
 								},

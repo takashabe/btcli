@@ -78,11 +78,6 @@ func (w *Printer) doPrint(decode string, v []byte) {
 }
 
 func (w *Printer) doGuessPrint(v []byte) {
-	if len(v) != 8 {
-		fmt.Fprintf(w.outStream, "    %q\n", v)
-		return
-	}
-
 	// guess: float decides by high 2-bit flag
 	// https://en.wikipedia.org/wiki/Double-precision_floating-point_format
 	switch v[0] << 1 >> 7 & 1 {
