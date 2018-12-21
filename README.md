@@ -92,7 +92,7 @@ read <table> [start=<row>] [end=<row>] [prefix=<prefix>] [family=<column_family>
 
 | Env | Detail |
 | --- | --- |
-| BTCLI_DECODE_TYPE | set the default decoding type.<br>values: (string|int|float) |
+| BTCLI_DECODE_TYPE | set the default decoding type.<br>values: `(string|int|float)` |
 
 ## Support commands
 
