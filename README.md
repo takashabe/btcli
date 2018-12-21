@@ -25,7 +25,7 @@ _write commands are not implemented yet_
 
 ## Installation
 
-```
+```sh
 go get -u github.com/takashabe/btcli/cmd/btcli
 ```
 
@@ -35,13 +35,13 @@ _Require go1.11 or later and GO111MODULE environemnts_
 
 ### Connect to bigtable
 
-```
+```sh
 btcli -project <GCP_PROJECT_NAME> -instance <BIGTABLE_INSTANCE_ID> -creds <GCP_CREDENTIAL_FILE>
 ```
 
 _-creds e.g. `~/.config/gcloud/application_default_credentials.json`_
 
-### Interactive shell
+### Subcommand and options
 
 - ls
 
@@ -87,6 +87,12 @@ read <table> [start=<row>] [end=<row>] [prefix=<prefix>] [family=<column_family>
         decode         Decode big-endian value
         decode-columns Decode big-endian value with columns. <column_name:<string|int|float>[,<column_name:...>]
 ```
+
+### Environments
+
+| Env | Detail |
+| --- | --- |
+| BTCLI_DECODE_TYPE | set the default decoding type.<br>values: (string|int|float) |
 
 ## Support commands
 
