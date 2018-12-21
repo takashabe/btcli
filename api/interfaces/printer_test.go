@@ -87,18 +87,11 @@ func TestPrintValue(t *testing.T) {
 			"1",
 		},
 		{
-			// decode guess
+			// decode string
 			&Printer{},
 			"d:row",
 			[]byte{0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, // 2.0
-			"2.000000",
-		},
-		{
-			// decode guess
-			&Printer{},
-			"d:row",
-			[]byte{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01}, // 1
-			"1",
+			"\"@\\x00\\x00\\x00\\x00\\x00\\x00\\x00\"",
 		},
 	}
 	for _, c := range cases {

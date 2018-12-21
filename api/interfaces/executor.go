@@ -164,7 +164,7 @@ func (e *Executor) lookupWithOptions(table, key string, args ...string) {
 		outStream: e.outStream,
 		errStream: e.errStream,
 
-		decodeType:       parsed["decode"],
+		decodeType:       decodeGlobalOption(parsed),
 		decodeColumnType: decodeColumnOption(parsed),
 	}
 	p.printRow(row)
@@ -219,7 +219,7 @@ func (e *Executor) readWithOptions(table string, args ...string) {
 		outStream: e.outStream,
 		errStream: e.errStream,
 
-		decodeType:       parsed["decode"],
+		decodeType:       decodeGlobalOption(parsed),
 		decodeColumnType: decodeColumnOption(parsed),
 	}
 	p.printRows(rows)
@@ -296,6 +296,13 @@ func readOption(parsedArgs map[string]string) ([]bigtable.ReadOption, error) {
 		opts = append(opts, bigtable.LimitRows(n))
 	}
 	return opts, nil
+}
+
+func decodeGlobalOption(parsedArgs map[string]string) string {
+	if d := parsedArgs["decode"]; d != "" {
+		return d
+	}
+	return os.Getenv("BTCLI_DECODE_TYPE")
 }
 
 func decodeColumnOption(parsedArgs map[string]string) map[string]string {
