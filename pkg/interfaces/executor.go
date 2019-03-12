@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"cloud.google.com/go/bigtable"
-	"github.com/takashabe/btcli/api/application"
+	"github.com/takashabe/btcli/pkg/application"
 )
 
 // Avoid to circular dependencies

@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	prompt "github.com/c-bata/go-prompt"
-	"github.com/takashabe/btcli/api/application"
+	"github.com/takashabe/btcli/pkg/application"
 )
 
 // Completer provides completion command handler

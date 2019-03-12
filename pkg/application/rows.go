@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"cloud.google.com/go/bigtable"
-	"github.com/takashabe/btcli/api/domain"
-	"github.com/takashabe/btcli/api/domain/repository"
+	"github.com/takashabe/btcli/pkg/domain"
+	"github.com/takashabe/btcli/pkg/domain/repository"
 )
 
 // RowsInteractor provide rows data

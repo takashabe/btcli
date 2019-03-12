@@ -3,7 +3,7 @@ package application
 import (
 	"context"
 
-	"github.com/takashabe/btcli/api/domain/repository"
+	"github.com/takashabe/btcli/pkg/domain/repository"
 )
 
 // TableInteractor provide table data

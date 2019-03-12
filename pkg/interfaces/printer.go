@@ -7,7 +7,7 @@ import (
 	"math"
 	"strings"
 
-	"github.com/takashabe/btcli/api/domain"
+	"github.com/takashabe/btcli/pkg/domain"
 )
 
 const (

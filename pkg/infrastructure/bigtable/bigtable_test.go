@@ -7,7 +7,7 @@ import (
 
 	"cloud.google.com/go/bigtable"
 	"github.com/stretchr/testify/assert"
-	"github.com/takashabe/btcli/api/domain"
+	"github.com/takashabe/btcli/pkg/domain"
 )
 
 func TestGet(t *testing.T) {

@@ -8,7 +8,7 @@ import (
 	bigtable "cloud.google.com/go/bigtable"
 	context "context"
 	gomock "github.com/golang/mock/gomock"
-	domain "github.com/takashabe/btcli/api/domain"
+	domain "github.com/takashabe/btcli/pkg/domain"
 	reflect "reflect"
 )
 

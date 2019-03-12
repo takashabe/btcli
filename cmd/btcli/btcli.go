@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/takashabe/btcli/api/interfaces"
+	"github.com/takashabe/btcli/pkg/interfaces"
 )
 
 // App version

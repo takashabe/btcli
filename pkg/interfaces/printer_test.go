@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/takashabe/btcli/api/domain"
+	"github.com/takashabe/btcli/pkg/domain"
 )
 
 func TestPrintRows(t *testing.T) {
