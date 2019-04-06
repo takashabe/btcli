@@ -3,16 +3,16 @@ package application
 import (
 	"context"
 
-	"github.com/takashabe/btcli/pkg/domain/repository"
+	"github.com/takashabe/btcli/pkg/domain"
 )
 
 // TableInteractor provide table data
 type TableInteractor struct {
-	repository repository.Bigtable
+	repository domain.BigtableRepository
 }
 
 // NewTableInteractor returns initialized TableInteractor
-func NewTableInteractor(r repository.Bigtable) *TableInteractor {
+func NewTableInteractor(r domain.BigtableRepository) *TableInteractor {
 	return &TableInteractor{
 		repository: r,
 	}

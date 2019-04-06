@@ -5,16 +5,15 @@ import (
 
 	"cloud.google.com/go/bigtable"
 	"github.com/takashabe/btcli/pkg/domain"
-	"github.com/takashabe/btcli/pkg/domain/repository"
 )
 
 // RowsInteractor provide rows data
 type RowsInteractor struct {
-	repository repository.Bigtable
+	repository domain.BigtableRepository
 }
 
 // NewRowsInteractor returns initialized RowsInteractor
-func NewRowsInteractor(r repository.Bigtable) *RowsInteractor {
+func NewRowsInteractor(r domain.BigtableRepository) *RowsInteractor {
 	return &RowsInteractor{
 		repository: r,
 	}

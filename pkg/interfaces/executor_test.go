@@ -11,7 +11,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/takashabe/btcli/pkg/application"
 	"github.com/takashabe/btcli/pkg/domain"
-	"github.com/takashabe/btcli/pkg/domain/repository"
 )
 
 func TestRowRange(t *testing.T) {
@@ -97,13 +96,13 @@ func TestDoReadRowExecutor(t *testing.T) {
 		env     map[string]string
 		input   string
 		expect  string
-		prepare func(*repository.MockBigtable)
+		prepare func(*domain.MockBigtableRepository)
 	}{
 		{
 			map[string]string{},
 			"ls",
 			"a\nb\n",
-			func(mock *repository.MockBigtable) {
+			func(mock *domain.MockBigtableRepository) {
 				mock.EXPECT().Tables(gomock.Any()).Return([]string{"a", "b"}, nil).Times(1)
 			},
 		},
@@ -111,7 +110,7 @@ func TestDoReadRowExecutor(t *testing.T) {
 			map[string]string{},
 			"read table prefix=a version=1 decode=int decode_columns=row:string,404:float",
 			"----------------------------------------\na\n  d:row                                    @ 2018/01/01-00:00:00.000000\n    \"a1\"\n",
-			func(mock *repository.MockBigtable) {
+			func(mock *domain.MockBigtableRepository) {
 				mock.EXPECT().GetRows(
 					gomock.Any(),
 					"table",
@@ -142,7 +141,7 @@ func TestDoReadRowExecutor(t *testing.T) {
 			},
 			"read table version=1 family=d",
 			"----------------------------------------\na\n  d:row                                    @ 2018/01/01-00:00:00.000000\n    1\n",
-			func(mock *repository.MockBigtable) {
+			func(mock *domain.MockBigtableRepository) {
 				mock.EXPECT().GetRows(
 					gomock.Any(),
 					"table",
@@ -176,7 +175,7 @@ func TestDoReadRowExecutor(t *testing.T) {
 			},
 			"read table version=1 family=d decode=int",
 			"----------------------------------------\na\n  d:row                                    @ 2018/01/01-00:00:00.000000\n    1\n",
-			func(mock *repository.MockBigtable) {
+			func(mock *domain.MockBigtableRepository) {
 				mock.EXPECT().GetRows(
 					gomock.Any(),
 					"table",
@@ -206,7 +205,7 @@ func TestDoReadRowExecutor(t *testing.T) {
 		},
 	}
 	for _, c := range cases {
-		mockBtRepo := repository.NewMockBigtable(ctrl)
+		mockBtRepo := domain.NewMockBigtableRepository(ctrl)
 		c.prepare(mockBtRepo)
 
 		for k, v := range c.env {
@@ -237,18 +236,18 @@ func TestDoCountExecutor(t *testing.T) {
 	cases := []struct {
 		input   string
 		expect  string
-		prepare func(*repository.MockBigtable)
+		prepare func(*domain.MockBigtableRepository)
 	}{
 		{
 			"count table",
 			"1\n",
-			func(mock *repository.MockBigtable) {
+			func(mock *domain.MockBigtableRepository) {
 				mock.EXPECT().Count(gomock.Any(), "table").Return(1, nil)
 			},
 		},
 	}
 	for _, c := range cases {
-		mockBtRepo := repository.NewMockBigtable(ctrl)
+		mockBtRepo := domain.NewMockBigtableRepository(ctrl)
 		c.prepare(mockBtRepo)
 
 		var buf bytes.Buffer

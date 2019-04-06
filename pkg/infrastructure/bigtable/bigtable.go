@@ -7,7 +7,6 @@ import (
 
 	"cloud.google.com/go/bigtable"
 	"github.com/takashabe/btcli/pkg/domain"
-	"github.com/takashabe/btcli/pkg/domain/repository"
 )
 
 type bigtableRepository struct {
@@ -16,7 +15,7 @@ type bigtableRepository struct {
 }
 
 // NewBigtableRepository returns initialized bigtableRepository
-func NewBigtableRepository(project, instance string) (repository.Bigtable, error) {
+func NewBigtableRepository(project, instance string) (domain.BigtableRepository, error) {
 	client, err := getClient(project, instance)
 	if err != nil {
 		return nil, err
