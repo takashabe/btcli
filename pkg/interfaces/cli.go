@@ -30,13 +30,13 @@ type CLI struct {
 	OutStream io.Writer
 	ErrStream io.Writer
 
-	Version string
-	Sum     string
+	Version  string
+	Revision string
 }
 
 // Run invokes the CLI with the given arguments
 func (c *CLI) Run(args []string) int {
-	fmt.Fprintf(c.OutStream, "btcli Version: %s(%s)\n", c.Version, c.Sum)
+	fmt.Fprintf(c.OutStream, "btcli Version: %s(%s)\n", c.Version, c.Revision)
 	fmt.Fprintf(c.OutStream, "Please use `exit` or `Ctrl-D` to exit this program.\n")
 
 	conf, err := c.loadConfig(args)
