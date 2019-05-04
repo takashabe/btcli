@@ -10,9 +10,8 @@ import (
 
 	prompt "github.com/c-bata/go-prompt"
 	"github.com/pkg/errors"
-	"github.com/takashabe/btcli/pkg/application"
+	"github.com/takashabe/btcli/pkg/bigtable"
 	"github.com/takashabe/btcli/pkg/config"
-	"github.com/takashabe/btcli/pkg/infrastructure/bigtable"
 )
 
 // exit codes
@@ -89,23 +88,17 @@ func usage(w io.Writer) {
 }
 
 func (c *CLI) preparePrompt(conf *config.Config, writer io.Writer, histories []string) (*prompt.Prompt, error) {
-	repository, err := bigtable.NewBigtableRepository(conf.Project, conf.Instance)
+	client, err := bigtable.NewClient(conf.Project, conf.Instance)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to initialized bigtable repository:%v", err)
 	}
-	tableInteractor := application.NewTableInteractor(repository)
-	rowsInteractor := application.NewRowsInteractor(repository)
 
 	executor := Executor{
-		outStream: c.OutStream,
-		errStream: c.ErrStream,
-		history:   writer,
-
-		rowsInteractor:  rowsInteractor,
-		tableInteractor: tableInteractor,
+		history: writer,
+		client:  client,
 	}
 	completer := Completer{
-		tableInteractor: tableInteractor,
+		client: client,
 	}
 
 	return prompt.New(

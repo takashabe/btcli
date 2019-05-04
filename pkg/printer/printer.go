@@ -7,7 +7,7 @@ import (
 	"math"
 	"strings"
 
-	"github.com/takashabe/btcli/pkg/domain"
+	"github.com/takashabe/btcli/pkg/bigtable"
 )
 
 // decode to specific type.
@@ -25,14 +25,14 @@ type Printer struct {
 }
 
 // PrintRows prints the list of values.
-func (w *Printer) PrintRows(rs []*domain.Row) {
+func (w *Printer) PrintRows(rs []*bigtable.Row) {
 	for _, r := range rs {
 		w.PrintRow(r)
 	}
 }
 
 // PrintRow prints the value.
-func (w *Printer) PrintRow(r *domain.Row) {
+func (w *Printer) PrintRow(r *bigtable.Row) {
 	fmt.Fprintln(w.OutStream, strings.Repeat("-", 40))
 	fmt.Fprintln(w.OutStream, r.Key)
 

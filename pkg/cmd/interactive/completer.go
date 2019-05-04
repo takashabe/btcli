@@ -5,12 +5,12 @@ import (
 	"strings"
 
 	prompt "github.com/c-bata/go-prompt"
-	"github.com/takashabe/btcli/pkg/application"
+	"github.com/takashabe/btcli/pkg/bigtable"
 )
 
 // Completer provides completion command handler
 type Completer struct {
-	tableInteractor *application.TableInteractor
+	client bigtable.Client
 }
 
 // Do provide completion to prompt
@@ -94,7 +94,7 @@ func filterDuplicateCommands(args []string, subcommands []prompt.Suggest) []prom
 }
 
 func (c *Completer) getTableSuggestions() []prompt.Suggest {
-	tbls, err := c.tableInteractor.GetTables(context.Background())
+	tbls, err := c.client.Tables(context.Background())
 	if err != nil {
 		return []prompt.Suggest{}
 	}

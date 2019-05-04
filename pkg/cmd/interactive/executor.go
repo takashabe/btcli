@@ -12,11 +12,11 @@ import (
 
 // Avoid to circular dependencies
 var (
-	doHelpFn func(context.Context, *Executor, ...string)
+	doHelpFn func(context.Context, bigtable.Client, ...string)
 )
 
-func doHelp(ctx context.Context, e *Executor, args ...string) {
-	doHelpFn(ctx, e, args...)
+func doHelp(ctx context.Context, client bigtable.Client, args ...string) {
+	doHelpFn(ctx, client, args...)
 }
 
 func init() {
@@ -25,9 +25,8 @@ func init() {
 
 // Executor provides exec command handler
 type Executor struct {
-	outStream io.Writer
-	errStream io.Writer
-	history   io.Writer
+	client  bigtable.Client
+	history io.Writer
 }
 
 // Do provides execute command
@@ -36,12 +35,6 @@ func (e *Executor) Do(s string) {
 	if s == "" {
 		return
 	}
-
-	// TODO: wip
-	client, _ := bigtable.NewClient("", "",
-		bigtable.WithOutStream(e.outStream),
-		bigtable.WithErrStream(e.errStream),
-	)
 
 	ctx := context.Background()
 	args := strings.Split(s, " ")
@@ -53,30 +46,29 @@ func (e *Executor) Do(s string) {
 				fmt.Fprintln(e.history, strings.Join(args, " "))
 			}
 
-			// TODO: extract args[0]
-			c.Runner(ctx, client, args...)
+			c.Runner(ctx, e.client, args[1:]...)
 			return
 		}
 	}
-	fmt.Fprintf(e.errStream, "Unknown command: %s\n", cmd)
+	fmt.Fprintf(e.client.ErrStream(), "Unknown command: %s\n", cmd)
 }
 
-func doExit(ctx context.Context, e *Executor, args ...string) {
-	fmt.Fprintln(e.outStream, "Bye!")
+func doExit(ctx context.Context, client bigtable.Client, args ...string) {
+	fmt.Fprintln(client.OutStream(), "Bye!")
 	os.Exit(0)
 }
 
-func lazyDoHelp(ctx context.Context, e *Executor, args ...string) {
+func lazyDoHelp(ctx context.Context, client bigtable.Client, args ...string) {
 	if len(args) == 1 {
-		usage(e.outStream)
+		usage(client.OutStream())
 		return
 	}
 	cmd := args[1]
 	for _, c := range commands {
 		if c.Name == cmd {
-			fmt.Fprintln(e.outStream, c.Usage)
+			fmt.Fprintln(client.OutStream(), c.Usage)
 			return
 		}
 	}
-	fmt.Fprintf(e.errStream, "Unknown command: %s\n", cmd)
+	fmt.Fprintf(client.ErrStream(), "Unknown command: %s\n", cmd)
 }

@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/takashabe/btcli/pkg/interfaces"
+	"github.com/takashabe/btcli/pkg/cmd/interactive"
 )
 
 // App version
@@ -13,7 +13,7 @@ var (
 )
 
 func main() {
-	cli := &interfaces.CLI{
+	cli := &interactive.CLI{
 		OutStream: os.Stdout,
 		ErrStream: os.Stderr,
 		Version:   Version,

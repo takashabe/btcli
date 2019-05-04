@@ -6,18 +6,18 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/takashabe/btcli/pkg/domain"
+	"github.com/takashabe/btcli/pkg/bigtable"
 )
 
 func TestPrintRows(t *testing.T) {
 	cases := []struct {
-		input  *domain.Row
+		input  *bigtable.Row
 		expect string
 	}{
 		{
-			&domain.Row{
+			&bigtable.Row{
 				Key: "a",
-				Columns: []*domain.Column{
+				Columns: []*bigtable.Column{
 					{
 						Family:    "d",
 						Qualifier: "d:row",
@@ -31,8 +31,7 @@ func TestPrintRows(t *testing.T) {
 	for _, c := range cases {
 		var buf bytes.Buffer
 		printer := &Printer{
-			outStream: &buf,
-			errStream: &buf,
+			OutStream: &buf,
 		}
 
 		printer.PrintRow(c.input)
@@ -50,8 +49,8 @@ func TestPrintValue(t *testing.T) {
 		{
 			// decode string
 			&Printer{
-				decodeType: "string",
-				decodeColumnType: map[string]string{
+				DecodeType: "string",
+				DecodeColumnType: map[string]string{
 					"r":  "int",
 					"ro": "float",
 				},
@@ -63,8 +62,8 @@ func TestPrintValue(t *testing.T) {
 		{
 			// decode float
 			&Printer{
-				decodeType: "string",
-				decodeColumnType: map[string]string{
+				DecodeType: "string",
+				DecodeColumnType: map[string]string{
 					"r":  "int",
 					"ro": "float",
 				},
@@ -76,8 +75,8 @@ func TestPrintValue(t *testing.T) {
 		{
 			// decode int
 			&Printer{
-				decodeType: "string",
-				decodeColumnType: map[string]string{
+				DecodeType: "string",
+				DecodeColumnType: map[string]string{
 					"r":  "int",
 					"ro": "float",
 				},
@@ -96,8 +95,7 @@ func TestPrintValue(t *testing.T) {
 	}
 	for _, c := range cases {
 		var buf bytes.Buffer
-		c.printer.outStream = &buf
-		c.printer.errStream = &buf
+		c.printer.OutStream = &buf
 
 		c.printer.printValue(c.qualifier, c.value)
 		assert.Equal(t, c.expect, strings.TrimSpace(buf.String()))

@@ -16,60 +16,49 @@ import (
 func DoLS(ctx context.Context, client bt.Client, args ...string) {
 	tables, err := client.Tables(ctx)
 	if err != nil {
-		fmt.Fprintf(e.errStream, "%v", err)
+		fmt.Fprintf(client.ErrStream(), "%v", err)
 		return
 	}
 	for _, tbl := range tables {
-		fmt.Fprintln(e.outStream, tbl)
+		fmt.Fprintln(client.OutStream(), tbl)
 	}
 }
 
-func DoCount(ctx context.Context, e *Executor, args ...string) {
-	if len(args) < 2 {
-		fmt.Fprintln(e.errStream, "Invalid args: count <table>")
+func DoCount(ctx context.Context, client bt.Client, args ...string) {
+	if len(args) < 1 {
+		fmt.Fprintln(client.ErrStream(), "Invalid args: count <table>")
 		return
 	}
-	table := args[1]
-	cnt, err := e.rowsInteractor.GetRowCount(ctx, table)
+	table := args[0]
+	cnt, err := client.Count(ctx, table)
 	if err != nil {
-		fmt.Fprintf(e.errStream, "%v", err)
+		fmt.Fprintf(client.ErrStream(), "%v", err)
 		return
 	}
-	fmt.Fprintln(e.outStream, cnt)
+	fmt.Fprintln(client.OutStream(), cnt)
 }
 
-func parseLookup(ctx context.Context, e *Executor, args ...string) {
-	if len(args) < 3 {
-		fmt.Fprintln(e.errStream, "Invalid args: lookup <table> <row>")
-		return
-	}
-	table := args[1]
-	key := args[2]
-	e.lookupWithOptions(table, key, args[3:]...)
-}
-
-func parseRead(ctx context.Context, e *Executor, args ...string) {
+func DoLookup(ctx context.Context, client bt.Client, args ...string) {
 	if len(args) < 2 {
-		fmt.Fprintln(e.errStream, "Invalid args: read <table> [args ...]")
+		fmt.Fprintln(client.ErrStream(), "Invalid args: lookup <table> <row>")
 		return
 	}
-	table := args[1]
-	e.readWithOptions(table, args[2:]...)
-}
+	table := args[0]
+	key := args[1]
+	opts := args[2:]
 
-func (e *Executor) lookupWithOptions(table, key string, args ...string) {
 	parsed := make(map[string]string)
-	for _, arg := range args {
-		i := strings.Index(arg, "=")
+	for _, opt := range opts {
+		i := strings.Index(opt, "=")
 		if i < 0 {
-			fmt.Fprintf(e.errStream, "Invalid args: %v\n", arg)
+			fmt.Fprintf(client.ErrStream(), "Invalid option: %v\n", opt)
 			return
 		}
-		// TODO: Improve parsing args
-		k, v := arg[:i], arg[i+1:]
+		// TODO: Improve parsing opts
+		k, v := opt[:i], opt[i+1:]
 		switch k {
 		default:
-			fmt.Fprintf(e.errStream, "Unknown arg: %v\n", arg)
+			fmt.Fprintf(client.ErrStream(), "Unknown option: %v\n", opt)
 			return
 		case "decode", "decode_columns":
 			parsed[k] = v
@@ -80,39 +69,46 @@ func (e *Executor) lookupWithOptions(table, key string, args ...string) {
 
 	ro, err := readOption(parsed)
 	if err != nil {
-		fmt.Fprintf(e.errStream, "Invalid options: %v\n", err)
+		fmt.Fprintf(client.ErrStream(), "Invalid options: %v\n", err)
 		return
 	}
 
-	ctx := context.Background()
-	row, err := e.rowsInteractor.GetRow(ctx, table, key, ro...)
+	b, err := client.Get(ctx, table, key, ro...)
 	if err != nil {
-		fmt.Fprintf(e.errStream, "%v", err)
+		fmt.Fprintf(client.OutStream(), "%v", err)
 		return
 	}
+	row := b.Rows[0]
 
 	// decode options
 	p := &printer.Printer{
-		OutStream:        e.outStream,
+		OutStream:        client.OutStream(),
 		DecodeType:       decodeGlobalOption(parsed),
 		DecodeColumnType: decodeColumnOption(parsed),
 	}
 	p.PrintRow(row)
 }
 
-func (e *Executor) readWithOptions(table string, args ...string) {
+func DoRead(ctx context.Context, client bt.Client, args ...string) {
+	if len(args) < 1 {
+		fmt.Fprintln(client.ErrStream(), "Invalid args: read <table> [args ...]")
+		return
+	}
+	table := args[0]
+	opts := args[1:]
+
 	parsed := make(map[string]string)
-	for _, arg := range args {
-		i := strings.Index(arg, "=")
+	for _, opt := range opts {
+		i := strings.Index(opt, "=")
 		if i < 0 {
-			fmt.Fprintf(os.Stderr, "Invalid args: %v\n", arg)
+			fmt.Fprintf(os.Stderr, "Invalid option: %v\n", opt)
 			return
 		}
-		// TODO: Improve parsing args
-		key, val := arg[:i], arg[i+1:]
+		// TODO: Improve parsing opts
+		key, val := opt[:i], opt[i+1:]
 		switch key {
 		default:
-			fmt.Fprintf(os.Stderr, "Unknown arg: %v\n", arg)
+			fmt.Fprintf(os.Stderr, "Unknown option: %v\n", opt)
 			return
 		case "decode", "decode_columns":
 			parsed[key] = val
@@ -122,31 +118,31 @@ func (e *Executor) readWithOptions(table string, args ...string) {
 	}
 
 	if (parsed["start"] != "" || parsed["end"] != "") && parsed["prefix"] != "" {
-		fmt.Fprintf(e.errStream, `"start"/"end" may not be mixed with "prefix"`)
+		fmt.Fprintf(client.ErrStream(), `"start"/"end" may not be mixed with "prefix"`)
 		return
 	}
 
 	rr, err := rowRange(parsed)
 	if err != nil {
-		fmt.Fprintf(e.errStream, "Invlaid range: %v\n", err)
+		fmt.Fprintf(client.ErrStream(), "Invlaid range: %v\n", err)
 		return
 	}
 	ro, err := readOption(parsed)
 	if err != nil {
-		fmt.Fprintf(e.errStream, "Invalid options: %v\n", err)
+		fmt.Fprintf(client.ErrStream(), "Invalid options: %v\n", err)
 		return
 	}
 
-	ctx := context.Background()
-	rows, err := e.rowsInteractor.GetRows(ctx, table, rr, ro...)
+	b, err := client.GetRows(ctx, table, rr, ro...)
 	if err != nil {
-		fmt.Fprintf(e.errStream, "%v\n", err)
+		fmt.Fprintf(client.ErrStream(), "%v\n", err)
 		return
 	}
+	rows := b.Rows
 
 	// decode options
 	p := &printer.Printer{
-		OutStream:        e.outStream,
+		OutStream:        client.OutStream(),
 		DecodeType:       decodeGlobalOption(parsed),
 		DecodeColumnType: decodeColumnOption(parsed),
 	}
