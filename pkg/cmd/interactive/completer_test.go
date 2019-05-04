@@ -1,4 +1,4 @@
-package interfaces
+package interactive
 
 import (
 	"testing"

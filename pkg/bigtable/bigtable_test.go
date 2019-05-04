@@ -7,7 +7,6 @@ import (
 
 	"cloud.google.com/go/bigtable"
 	"github.com/stretchr/testify/assert"
-	"github.com/takashabe/btcli/api/domain"
 )
 
 func TestGet(t *testing.T) {
@@ -18,14 +17,14 @@ func TestGet(t *testing.T) {
 	cases := []struct {
 		table  string
 		key    string
-		expect *domain.Row
+		expect *Row
 	}{
 		{
 			"users",
 			"1",
-			&domain.Row{
+			&Row{
 				Key: "1",
-				Columns: []*domain.Column{
+				Columns: []*Column{
 					{
 						Family:    "d",
 						Qualifier: "d:row",
@@ -38,9 +37,9 @@ func TestGet(t *testing.T) {
 		{
 			"articles",
 			"1##1",
-			&domain.Row{
+			&Row{
 				Key: "1##1",
-				Columns: []*domain.Column{
+				Columns: []*Column{
 					{
 						Family:    "d",
 						Qualifier: "d:content",
@@ -58,7 +57,7 @@ func TestGet(t *testing.T) {
 		},
 	}
 	for _, c := range cases {
-		r, err := NewBigtableRepository("test-project", "test-instance")
+		r, err := NewClient("test-project", "test-instance")
 		assert.NoError(t, err)
 
 		bt, err := r.Get(context.Background(), c.table, c.key)
@@ -84,16 +83,16 @@ func TestGetRows(t *testing.T) {
 		table  string
 		rr     bigtable.RowRange
 		opts   []bigtable.ReadOption
-		expect []*domain.Row
+		expect []*Row
 	}{
 		{
 			"users",
 			bigtable.PrefixRange("1"),
 			[]bigtable.ReadOption{},
-			[]*domain.Row{
+			[]*Row{
 				{
 					Key: "1",
-					Columns: []*domain.Column{
+					Columns: []*Column{
 						{
 							Family:    "d",
 							Qualifier: "d:row",
@@ -104,7 +103,7 @@ func TestGetRows(t *testing.T) {
 				},
 				{
 					Key: "10",
-					Columns: []*domain.Column{
+					Columns: []*Column{
 						{
 							Family:    "d'",
 							Qualifier: "d':row",
@@ -126,10 +125,10 @@ func TestGetRows(t *testing.T) {
 					),
 				),
 			},
-			[]*domain.Row{
+			[]*Row{
 				{
 					Key: "4",
-					Columns: []*domain.Column{
+					Columns: []*Column{
 						{
 							Family:    "d",
 							Qualifier: "d:row",
@@ -144,10 +143,10 @@ func TestGetRows(t *testing.T) {
 			"articles",
 			bigtable.PrefixRange("3"),
 			[]bigtable.ReadOption{},
-			[]*domain.Row{
+			[]*Row{
 				{
 					Key: "3##1",
-					Columns: []*domain.Column{
+					Columns: []*Column{
 						{
 							Family:    "d",
 							Qualifier: "d:content",
@@ -166,7 +165,7 @@ func TestGetRows(t *testing.T) {
 		},
 	}
 	for _, c := range cases {
-		r, err := NewBigtableRepository("test-project", "test-instance")
+		r, err := NewClient("test-project", "test-instance")
 		assert.NoError(t, err)
 
 		bt, err := r.GetRows(context.Background(), c.table, c.rr, c.opts...)
@@ -187,7 +186,7 @@ func TestCount(t *testing.T) {
 		{"users", 5},
 	}
 	for _, c := range cases {
-		r, err := NewBigtableRepository("test-project", "test-instance")
+		r, err := NewClient("test-project", "test-instance")
 		assert.NoError(t, err)
 
 		cnt, err := r.Count(context.Background(), c.table)
@@ -212,7 +211,7 @@ func TestTables(t *testing.T) {
 		},
 	}
 	for _, c := range cases {
-		r, err := NewBigtableRepository("test-project", "test-instance")
+		r, err := NewClient("test-project", "test-instance")
 		assert.NoError(t, err)
 
 		tbls, err := r.Tables(context.Background())

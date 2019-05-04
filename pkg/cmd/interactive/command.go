@@ -1,9 +1,11 @@
-package interfaces
+package interactive
 
 import (
 	"context"
 
 	prompt "github.com/c-bata/go-prompt"
+	"github.com/takashabe/btcli/pkg/bigtable"
+	"github.com/takashabe/btcli/pkg/evaluator/cbt"
 )
 
 // Command defines command describe and runner
@@ -11,7 +13,7 @@ type Command struct {
 	Name        string
 	Description string
 	Usage       string
-	Runner      func(context.Context, *Executor, ...string)
+	Runner      func(context.Context, bigtable.Client, ...string)
 }
 
 var commands = []Command{
@@ -25,13 +27,13 @@ var commands = []Command{
 		Name:        "ls",
 		Description: "List tables",
 		Usage:       "ls",
-		Runner:      doLS,
+		Runner:      cbt.DoLS,
 	},
 	{
 		Name:        "count",
 		Description: "Count table rows",
 		Usage:       "count <table>",
-		Runner:      doCount,
+		Runner:      cbt.DoCount,
 	},
 	{
 		Name:        "lookup",
@@ -40,7 +42,7 @@ var commands = []Command{
 	version        Read only latest <n> columns
 	decode         Decode big-endian value
 	decode-columns Decode big-endian value with columns. <column_name:<string|int|float>[,<column_name:...>]`,
-		Runner: doLookup,
+		Runner: cbt.DoLookup,
 	},
 	{
 		Name:        "read",
@@ -56,7 +58,7 @@ var commands = []Command{
 	to             Read older cells than this unittime
 	decode         Decode big-endian value
 	decode-columns Decode big-endian value with columns. <column_name:<string|int|float>[,<column_name:...>]`,
-		Runner: doRead,
+		Runner: cbt.DoRead,
 	},
 
 	// btcli commands
