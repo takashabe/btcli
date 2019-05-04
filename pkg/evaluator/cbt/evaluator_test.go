@@ -203,8 +203,8 @@ func TestDoRead(t *testing.T) {
 		},
 	}
 	for _, c := range cases {
-		mockBtRepo := bt.NewMockClient(ctrl)
-		c.prepare(mockBtRepo)
+		mockClient := bt.NewMockClient(ctrl)
+		c.prepare(mockClient)
 
 		for k, v := range c.env {
 			os.Setenv(k, v)
@@ -212,10 +212,10 @@ func TestDoRead(t *testing.T) {
 		}
 
 		var buf bytes.Buffer
-		mockBtRepo.EXPECT().OutStream().Return(&buf).AnyTimes()
-		mockBtRepo.EXPECT().ErrStream().Return(&buf).AnyTimes()
+		mockClient.EXPECT().OutStream().Return(&buf).AnyTimes()
+		mockClient.EXPECT().ErrStream().Return(&buf).AnyTimes()
 
-		DoRead(context.Background(), mockBtRepo, c.input...)
+		DoRead(context.Background(), mockClient, c.input...)
 		assert.Equal(t, c.expect, buf.String())
 	}
 }
@@ -238,14 +238,14 @@ func TestDoCountExecutor(t *testing.T) {
 		},
 	}
 	for _, c := range cases {
-		mockBtRepo := bt.NewMockClient(ctrl)
-		c.prepare(mockBtRepo)
+		mockClient := bt.NewMockClient(ctrl)
+		c.prepare(mockClient)
 
 		var buf bytes.Buffer
-		mockBtRepo.EXPECT().OutStream().Return(&buf).AnyTimes()
-		mockBtRepo.EXPECT().ErrStream().Return(&buf).AnyTimes()
+		mockClient.EXPECT().OutStream().Return(&buf).AnyTimes()
+		mockClient.EXPECT().ErrStream().Return(&buf).AnyTimes()
 
-		DoCount(context.Background(), mockBtRepo, c.input...)
+		DoCount(context.Background(), mockClient, c.input...)
 		assert.Equal(t, c.expect, buf.String())
 	}
 }
