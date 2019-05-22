@@ -4,7 +4,7 @@
 
 # btcli
 
-CLI client for the Bigtable with auto-completion.
+btcli is a CLI client for the Bigtable. Has many read options and auto-completion.
 
 ![tty](https://user-images.githubusercontent.com/681508/44247754-9ad3ea80-a221-11e8-9172-2cb709e1420a.gif)
 
