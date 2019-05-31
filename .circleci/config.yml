@@ -2,13 +2,13 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/golang:1.11.2
+      - image: golang/1.12-alpine
         environment:
           BIGTABLE_EMULATOR_HOST: 127.0.0.1:8864
       - image: google/cloud-sdk
         command: gcloud beta emulators bigtable start --host-port 0.0.0.0:8864 --project test-project
 
-    working_directory: ~/github.com/takashabe/btcli
+    working_directory: $HOME/github.com/takashabe/btcli
 
     steps:
       - checkout
