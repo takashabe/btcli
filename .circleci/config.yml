@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: golang:1.12-alpine
+      - image: circleci/golang:1.12
         environment:
           BIGTABLE_EMULATOR_HOST: 127.0.0.1:8864
       - image: google/cloud-sdk
